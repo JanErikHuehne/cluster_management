@@ -1,0 +1,102 @@
+- name: Install build dependencies
+  ansible.builtin.apt:
+    name: 
+    - build-essential 
+    - libssl-dev 
+    - libpam0g-dev 
+    - libncurses-dev
+    - libhttp-parser-dev
+    - libyaml-dev
+    - libcurl4-openssl-dev
+    - pkg-config
+    state: present
+    update_cache: true 
+
+- name: Create slurm group
+  ansible.builtin.group:
+    name: "{{ slurm_group }}"
+    gid: "{{ slurm_gid }}"
+    system: true 
+
+- name: Create slurm user  
+  ansible.builtin.user:
+    name : "{{ slurm_user }}"
+    group : "{{ slurm_group }}"
+    uid: " {{ slurm_uid }}"
+    system : true 
+    shell: /sbin/nologin 
+    home : "{{ slurm_state_save_location }}"
+    create_home : false
+
+  
+- name: Create slurm spool and log directories
+  ansible.builtin.file: 
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    mode: "0755"
+  loop:
+      - "{{ slurm_spool_dir }}"
+      - "{{ slurm_log_dir }}"
+
+- name: Download Slurm {{ slurm_version }} source 
+  ansible.builtin.get_url:
+      url: "https://download.schedmd.com/slurm/slurm-{{ slurm_version }}.tar.bz2"
+      dest: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
+      mode: "0644"
+
+- name: Extract Slurm source 
+  ansible.builtin.unarchive:
+    src: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
+    dest: "{{ slurm_build_dir }}"
+    remote_src: true
+    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/configure"
+
+- name: Configure slurm build 
+  ansible.builtin.command:
+    cmd: "./configure {{slurm_configure_opts | join(' ') }}"
+    chdir: "{{ slurm_build_dir}}/slurm-{{ slurm_version }}"
+    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/Makefile"
+
+- name: Build and install Slurm 
+  ansible.builtin.command:
+    cmd: "make -j{{ ansible_processor_vcpus }} install"
+    chdir: "{{ slurm_build_dir}}/slurm-{{ slurm_version }}"
+    creates: "{{ slurm_install_prefix }}/sbin/slurmd"
+
+- name: Refresh linker cache after install
+  ansible.builtin.command: ldconfig
+
+- name: Deploy slurm_conf
+  ansible.builtin.template:
+    src: slurm.conf.j2 
+    dest: /etc/slurm/slurm.conf 
+    owner: "{{ slurm_user }}"
+    group: " {{ slurm_group }}"
+    mode: "0644"
+  notify: restart slurmd 
+
+- name: Deploy cgroup.conf
+  ansible.builtin.template:
+    src: cgroup.conf.j2 
+    dest: /etc/slurm/cgroup.conf 
+    owner: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    mode: "0644"
+  notify: restart slurmd 
+
+- name: Install slurmd systemd unit 
+  ansible.builtin.copy:
+    src: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/etc/slurmd.service"
+    dest: /etc/systemd/system/slurmd.service 
+    remote_src: true 
+  notify: reload systemd 
+
+- name: Enable and start slurmd 
+  ansible.builtin.systemd:
+    name: slurmd 
+    enabled: true 
+    state: started 
+    daemon_reload: true 
+

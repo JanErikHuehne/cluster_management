@@ -1,0 +1,21 @@
+
+slurm_version: "26.05.02"
+
+slurm_build_dir: /usr/local/src/slurm 
+slurm_install_prefix: /usr/local 
+slurm_user: slurm 
+slurm_group: slurm 
+
+slurm_uid: 64030
+slurm_gid: 64030
+
+slurm_spool_dir: /var/spool/slurmd 
+slurm_log_dir: /var/log/slurm
+
+slurm_configure_opts:
+  - "--prefix={{ slurm_install_prefix }}"
+  - "--with-munge"
+  - "--with-pam_dir=/lib/x86_64-linux-gnu/security"
+  - "--enable-pam"
+
+
