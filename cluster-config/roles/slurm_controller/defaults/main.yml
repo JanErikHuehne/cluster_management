@@ -18,7 +18,7 @@ libjwt_source_version: "1.17.0"
 json_c_source_version: "0.17"
 
 
-slurm_conffigure_opts: 
+slurm_configure_opts: 
   - "--prefix={{ slurm_install_prefix }}"
   - "--with-munge"
   - "--with-pam_dir=/lib/x86_64-linux-gnu/security"

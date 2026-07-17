@@ -1,3 +1,4 @@
 
 dependencies:
-  -role: cluster_accounts
+  - role: cluster_accounts
+  - role: munge
