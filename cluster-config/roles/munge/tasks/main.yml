@@ -1,0 +1,56 @@
+- name: Create munge group 
+  ansible.builtin.group:
+    name: "{{ munge_group }}"
+    gid: "{{ munde_gid }}"
+    system: true 
+    state: present 
+
+- name: Create munge user
+  ansible.builtin.user:
+    name: "{{ munge_user }}"
+    uid: "{{ munge_uid }}"
+    group: " {{ munge_group }}"
+    system: true 
+    shell: sbin/nologin 
+    home: /var/lib/munge 
+    create_home: false 
+  
+- name: Install munge packages
+  ansible.builtin.apt: 
+    name: 
+      - munge 
+      - libmunge-dev 
+      - libmunge2 
+    state: present 
+    update_cache: true 
+
+- name: Ensure munge directories have correct ownership 
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory 
+    owner: "{{ munge_user }}"
+    group: "{{ munge_group }}"
+    mode: "700"
+
+  loop: 
+  - /etc/munge 
+  - /var/lib/munge 
+  - /var/log/munge 
+  - /run/munge 
+
+- name: Deploy shared munge key 
+  ansible.builtin.copy:
+    src: files/munge.key 
+    dest: "{{ munge_key_path }}"
+    owner: " {{ munge_user }}"
+    group: " {{ munge_group }}"
+    mode: "0400"
+  notify: restart munge 
+
+- name: Enable and start munge service
+  ansible.builtin.systemd:
+    name: munge
+    enabled: true
+    state: started 
+
+
