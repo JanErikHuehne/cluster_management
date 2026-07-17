@@ -1,0 +1,25 @@
+slurm_version: "26.05.2"
+slurm_build_dir: /usr/local/src/slurm
+slurm_install_prefix: /usr/local
+slurm_user: slurm
+slurm_group : slurm
+slurm_state_save_location: /var/spool/slurmctld
+slurm_log_dir : /var/log/slurm
+munge_key_path: /etc/munge/munge.key
+
+
+slurm_uid: 64030
+slurm_gid: 64030
+munge_uid: 64031
+munge_gid: 64031
+
+slurm_min_libjwt_version : "1.10.0"
+libjwt_source_version: "1.17.0"
+json_c_source_version: "0.17"
+
+
+slurm_conffigure_opts: 
+  - "--prefix={{ slurm_install_prefix }}"
+  - "--with-munge"
+  - "--with-pam_dir=/lib/x86_64-linux-gnu/security"
+  - "--enable-pam"
