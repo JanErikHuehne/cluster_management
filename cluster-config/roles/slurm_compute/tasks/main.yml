@@ -8,6 +8,10 @@
     - libhttp-parser-dev
     - libyaml-dev
     - libcurl4-openssl-dev
+    - libjwt-dev
+    - libjson-c-dev
+    - libdbus-1-dev      # cgroup/v2
+    - libhwloc-dev       # CPU topology detection
     - pkg-config
     state: present
     update_cache: true 
