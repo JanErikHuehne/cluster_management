@@ -1,0 +1,5 @@
+slurm_cpus: 112
+slurm_sockets: 2
+slurm_cores: 28
+slurm_threads: 2
+slurm_real_memory: 380000
