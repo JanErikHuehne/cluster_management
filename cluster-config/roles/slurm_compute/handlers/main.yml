@@ -3,6 +3,6 @@
     daemon_reload: true
     
 - name: reload slurmd 
-  ansible.buildin.systemd:
+  ansible.builtin.systemd:
     name: slurmd 
     state: restarted 
