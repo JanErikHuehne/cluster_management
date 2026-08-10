@@ -102,6 +102,7 @@
     cmd: "./configure {{ slurm_configure_opts | join(' ') }}"
     chdir:  "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
     creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/Makefile"
+    
 - name: Build and install Slurm 
   ansible.builtin.command:
     cmd: "make -j{{ ansible_processor_vcpus }} install"
