@@ -1,5 +1,8 @@
 all:
   children:
+    ldap_client:
+      hosts:
+        tuwzc1n-insula:
     slurm_compute:
       hosts: 
         tuwzc1n-insula:
@@ -8,4 +11,3 @@ all:
     ansible_user: janhuehne
     ansible_become: true 
     ansible_python_interpreter: /usr/bin/python3 
-    
