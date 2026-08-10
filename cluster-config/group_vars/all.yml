@@ -1,0 +1,9 @@
+slurm_cluster_name: CompNeuroCirc
+slurm_controller_host: tuwzc1n-habenula
+slurm_user: slurm
+slurm_group: slurm
+slurm_uid: 64030
+slurm_gid: 64030
+slurm_spool_dir: /var/spool/slurmd
+slurm_log_dir: /var/log/slurm
+slurm_state_save_location: /var/spool/slurmctld
