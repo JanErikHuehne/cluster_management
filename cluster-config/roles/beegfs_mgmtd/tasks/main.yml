@@ -1,0 +1,53 @@
+- name: Resolve package files from local build cache
+  ansible.builtin.set_fact:
+    beegfs_mgmtd_packages: "{{ beegfs_mgmtd_packages | default([]) + lookup('fileglob', beegfs_local_package_cache + '/' + item, wantlist=True) }}"
+  loop: "{{ beegfs_mgmtd_package_patterns }}"
+
+- name: Copy packages to node
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item | basename }}"
+  loop: "{{ beegfs_mgmtd_packages }}"
+
+- name: Install beegfs-mgmtd packages
+  ansible.builtin.apt:
+    deb: "/tmp/{{ item | basename }}"
+  loop: "{{ beegfs_mgmtd_packages }}"
+
+- name: Ensure mgmtd data directory exists
+  ansible.builtin.file:
+    path: "{{ beegfs_mgmtd_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Initialize mgmtd storage directory
+  ansible.builtin.command: "beegfs-setup-mgmtd -p {{ beegfs_mgmtd_dir }}"
+  args:
+    creates: "{{ beegfs_mgmtd_dir }}/format.conf"
+
+- name: Deploy connAuthFile
+  ansible.builtin.import_role:
+    name: beegfs_common
+    tasks_from: conn_auth
+
+- name: Deploy beegfs-mgmtd.conf
+  ansible.builtin.template:
+    src: beegfs-mgmtd.conf.j2
+    dest: /etc/beegfs/beegfs-mgmtd.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart beegfs-mgmtd
+
+- name: Enable and start beegfs-mgmtd
+  ansible.builtin.systemd:
+    name: beegfs-mgmtd
+    enabled: true
+    state: started
+
+
+
+
+

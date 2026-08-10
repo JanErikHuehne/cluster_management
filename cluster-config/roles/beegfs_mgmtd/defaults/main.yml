@@ -1,0 +1,8 @@
+
+
+beegfs_mgmtd_dir: /data/beegfs_mgmtd 
+beegfs_mgmtd_package_patterns:
+  - "beegfs-common_*.deb"
+  - "beegfs-mgmtd_*.deb"
+  - "beegfs-utils_*.deb"
+
