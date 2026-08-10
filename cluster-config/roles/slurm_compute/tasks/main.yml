@@ -25,7 +25,7 @@
     uid: " {{ slurm_uid }}"
     system : true 
     shell: /sbin/nologin 
-    home : "{{ slurm_state_save_location }}"
+    home: "{{ slurm_spool_dir }}"
     create_home : false
 
   
@@ -46,6 +46,22 @@
       dest: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
       mode: "0644"
 
+- name: Create Slurm build directory
+  ansible.builtin.file:
+    path: "{{ slurm_build_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  
+- name: Create Slurm config directory
+  ansible.builtin.file:
+    path: /etc/slurm
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Extract Slurm source 
   ansible.builtin.unarchive:
     src: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
@@ -57,7 +73,7 @@
   ansible.builtin.command:
     cmd: "./configure {{slurm_configure_opts | join(' ') }}"
     chdir: "{{ slurm_build_dir}}/slurm-{{ slurm_version }}"
-    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/Makefile"
+    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/config.status"
 
 - name: Build and install Slurm 
   ansible.builtin.command:
@@ -73,7 +89,7 @@
     src: slurm.conf.j2 
     dest: /etc/slurm/slurm.conf 
     owner: "{{ slurm_user }}"
-    group: " {{ slurm_group }}"
+    group: "{{ slurm_group }}"
     mode: "0644"
   notify: restart slurmd 
 
