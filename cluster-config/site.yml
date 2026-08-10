@@ -1,0 +1,6 @@
+- name: Configure Slurm compute nodes
+  hosts: slurm_compute
+  become: true
+  roles:
+    - munge
+    - slurm_compute
