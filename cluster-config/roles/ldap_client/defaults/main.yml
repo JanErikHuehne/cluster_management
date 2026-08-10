@@ -1,0 +1,6 @@
+sssd_ad_domain: ads.mwn.de
+sssd_krb5_realm: ADS.MWN.DE
+sssd_user_search_base: "OU=Users,OU=TU,OU=IAM,DC=ads,DC=mwn,DC=de"
+sssd_group_search_base: "OU=Groups,OU=TU,OU=IAM,DC=ads,DC=mwn,DC=de"
+sssd_access_provider: deny
+sssd_allow_groups: []

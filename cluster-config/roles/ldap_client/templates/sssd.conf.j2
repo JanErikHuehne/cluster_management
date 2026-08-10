@@ -1,0 +1,27 @@
+[sssd]
+domains = {{ sssd_ad_domain }}
+config_file_version = 2
+services = nss, pam
+
+[domain/{{ sssd_ad_domain }}]
+ad_domain = {{ sssd_ad_domain }}
+id_provider = ad
+auth_provider = ad
+chpass_provider = ad
+access_provider = deny
+krb5_realm = {{ sssd_krb5_realm }}
+krb5_store_password_if_offline = True
+ldap_schema = rfc2307bis
+ldap_user_search_base = {{ sssd_user_search_base }}
+ldap_group_search_base = {{ sssd_group_search_base }}
+ldap_id_mapping = False
+fallback_homedir = /home/%u
+default_shell = /bin/bash
+cache_credentials = True
+ad_gpo_access_control = disabled
+ad_gpo_ignore_unreadable = True
+enumerate = False
+dyndns_update = False
+ignore_group_members = True
+simple_allow_groups = {{ sssd_allow_groups | join(' ') }}
+ldap_sasl_authid = {{ sssd_sasl_authid }}

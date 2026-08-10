@@ -1,0 +1,40 @@
+- name: Install BeeGFS build prerequesistes
+  ansible.builtin.opt:
+    name: 
+      - git 
+      - build-essential 
+      - cmake 
+      - debhelper 
+      - dpkg-dev 
+      - devscripts 
+      - libblkid-dev 
+      - libattr1-dev 
+      - zlib1g-dev 
+    state: present
+    update_cache: true 
+
+- name: fetch beegfs 
+  ansible.builtin.git:
+    repo: "{{ beegfs_repo_url }}"
+    dest: " {{ beegfs_src_dir }}"
+    version: "{{ beegfs_version }}"
+
+- name: Build DEB packages for all services
+  ansible.builtin.command:
+    cmd: "make package-deb PACKAGE_DIR=packages DEBUILD_OPTS=-j{{ ansible_processor_vcpus }}"
+    chdir: "{{ beegfs_src_dir }}"
+    creates: "{{ beegfs_package_dir }}"
+
+
+- name: Discover built package files
+  ansible.builtin.find:
+    paths: "{{ beegfs_package_dir }}"
+    patterns: "*.deb"
+  register: beegfs_built_packages
+
+- name: Fetch built packages to the control node
+  ansible.builtin.fetch:
+    src: "{{ item.path }}"
+    dest: "{{ beegfs_local_package_cache }}/"
+    flat: true
+  loop: "{{ beegfs_built_packages.files }}"
