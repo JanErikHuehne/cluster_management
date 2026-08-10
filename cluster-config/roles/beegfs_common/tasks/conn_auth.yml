@@ -1,0 +1,19 @@
+- name: Create /etc/beegfs directory exists
+  ansible.builtin.file:
+    path: /etc/beegfs 
+    state: directory 
+    mode: "0755"
+
+- name: Deploy shared BeeGFS connAuthFile
+  ansible.builtin.copy:
+    src: files/connAuthFile 
+    dest: "{{ beegfs_conn_auth_file }}"
+    owner: root 
+    group: root 
+    mode: "0400"
+
+
+
+
+
+

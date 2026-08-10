@@ -1,0 +1,7 @@
+beegfs_version:  "v8.4.0"
+beegfs_repo_url: "https://github.com/ThinkParQ/beegfs.git"
+beegfs_src_dir: /usr/local/src/beegfs
+beegfs_package_dir: "{{ beegfs_src_dir }}/packages"
+beegfs_local_package_cache: "{{ playbook_dir }}/files/beegfs_packages"
+beegfs_conn_auth_file: /etc/beegfs/connAuthFile
+beegfs_mgmtd_host: "{{ groups['beegfs_mgmtd'][0] }}"
