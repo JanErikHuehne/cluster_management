@@ -1,0 +1,12 @@
+beegfs_meta_raid_devices:
+  - /dev/disk/by-id/scsi-XXXXXXXX  
+  - /dev/disk/by-id/scsi-YYYYYYYY
+
+beegfs_meta_raid_device_name: /dev/md0 
+beegfs_metsa_mount_point: /data/beegfs_meta 
+beegfs_meta_xfs_inode_size: 512 
+
+beegds_meta_package_patterns:
+  - "beegfs-common_*.deb"
+  - "beegfs-meta_*.deb"
+  - "beegfs-utils_*.deb"
