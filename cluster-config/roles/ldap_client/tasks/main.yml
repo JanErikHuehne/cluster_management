@@ -36,7 +36,16 @@
       {{ sssd_ad_domain }}
     stdin: "{{ ad_join_password }}"
   when: sssd_ad_domain not in realm_status.stdout
-  no_log: true
+  no_log: True
+
+- name: Wait for sssd to be responsive after join
+  command: getent passwd root
+  register: result
+  retries: 5
+  delay: 3
+  until: result.rc == 0
+  changed_when: false
+ 
 
 - name: Deploy sssd.conf
   ansible.builtin.template:
