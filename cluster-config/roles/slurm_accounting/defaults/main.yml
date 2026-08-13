@@ -1,0 +1,4 @@
+slurmdbd_db_name: slurm_acct_db
+slurmdbd_db_user: slurmdbd
+slurmdbd_db_password: "{{ vault_slurmdbd_db_password }}"
+slurmdbd_log_dir: /var/log/slurm

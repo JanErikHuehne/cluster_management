@@ -1,0 +1,89 @@
+- name: Install MariaDB server and client dev headers
+  ansible.builtin.apt:
+    name:
+      - mariadb-server
+      - libmariadb-dev
+      - python3-pymysql
+    state: present
+    update_cache: true
+ 
+- name: Ensure MariaDB is enabled and running
+  ansible.builtin.systemd:
+    name: mariadb
+    enabled: true
+    state: started
+ 
+- name: Create slurm_acct_db database
+  community.mysql.mysql_db:
+    name: "{{ slurmdbd_db_name }}"
+    state: present
+    login_unix_socket: /run/mysqld/mysqld.sock
+ 
+- name: Create slurmdbd database user
+  community.mysql.mysql_user:
+    name: "{{ slurmdbd_db_user }}"
+    password: "{{ slurmdbd_db_password }}"
+    priv: "{{ slurmdbd_db_name }}.*:ALL"
+    host: localhost
+    state: present
+    login_unix_socket: /run/mysqld/mysqld.sock
+ 
+# slurm_controller's build already includes MySQL support (libmariadb-dev
+# is in its apt list), so slurmdbd and accounting_storage_mysql.so already
+# exist by the time this role runs. This is just a safety check.
+ 
+- name: Verify slurmdbd binary exists
+  ansible.builtin.stat:
+    path: "{{ slurm_install_prefix }}/sbin/slurmdbd"
+  register: slurmdbd_binary
+  failed_when: not slurmdbd_binary.stat.exists
+ 
+- name: Create slurmdbd log directory
+  ansible.builtin.file:
+    path: "{{ slurmdbd_log_dir }}"
+    state: directory
+    owner: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    mode: "0755"
+ 
+- name: Deploy slurmdbd.conf
+  ansible.builtin.template:
+    src: slurmdbd.conf.j2
+    dest: /etc/slurm/slurmdbd.conf
+    owner: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    mode: "0600"
+  notify: restart slurmdbd
+ 
+- name: Install slurmdbd systemd unit
+  ansible.builtin.copy:
+    src: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/etc/slurmdbd.service"
+    dest: /etc/systemd/system/slurmdbd.service
+    remote_src: true
+  notify: reload systemd
+ 
+- name: Enable and start slurmdbd
+  ansible.builtin.systemd:
+    name: slurmdbd
+    enabled: true
+    state: started
+    daemon_reload: true
+ 
+- name: Wait for slurmdbd to accept connections
+  ansible.builtin.wait_for:
+    port: 6819
+    host: 127.0.0.1
+    timeout: 30
+ 
+- name: Register cluster with slurmdbd
+  ansible.builtin.command: sacctmgr -i add cluster {{ slurm_cluster_name }}
+  register: cluster_register
+  changed_when: "'already exists' not in cluster_register.stdout"
+  failed_when:
+    - cluster_register.rc != 0
+    - "'already exists' not in cluster_register.stdout"
+
+- name: Restart slurmctld now that slurmdbd is available
+  ansible.builtin.systemd:
+    name: slurmctld
+    state: restarted
