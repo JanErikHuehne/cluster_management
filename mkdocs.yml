@@ -12,3 +12,4 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Architecture: architecture.md
+  - Host Vars: hosts_vars/index.md
