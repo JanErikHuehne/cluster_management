@@ -11,9 +11,10 @@ markdown_extensions:
   - pymdownx.highlight
 nav:
   - Home: index.md
+  - Roles:
+    - Munge: roles/munge.md
   - Architecture: architecture.md
   - Host Vars: host_vars/index.md
-  - Test: test/index.md
   - Templates:
       - Overview: templ/index.md
       - slurm.conf.j2: templ/slurm_conf_j2.md
