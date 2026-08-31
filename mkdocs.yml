@@ -1,0 +1,14 @@
+site_name: Cluster Ansible Build 
+repo_url: https://github.com/JanErikHuehne/cluster_management 
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
