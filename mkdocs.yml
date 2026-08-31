@@ -13,3 +13,6 @@ nav:
   - Home: index.md
   - Architecture: architecture.md
   - Host Vars: hosts_vars/index.md
+  - Templates:
+    - Overview: templates/index.md
+    - slurm.conf: templates/slurm_conf.j2.md
