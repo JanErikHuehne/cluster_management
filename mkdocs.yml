@@ -15,5 +15,5 @@ nav:
   - Host Vars: hosts_vars/index.md
   - Test: test/index.md
   - Templates:
-      - Overview: templates/index.md
-      - slurm.conf.j2: templates/slurm_conf_j2.md
+      - Overview: templ/index.md
+      - slurm.conf.j2: templ/slurm_conf_j2.md
