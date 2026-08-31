@@ -1,0 +1,25 @@
+galaxy_info:
+  role_name: open_ondemand
+  namespace: osc
+  author: Jeff Ohrstrom
+  company: Ohio Supercomputer Center
+  description: Installs and configures Open OnDemand on various Linux distributions.
+  license: MIT
+  min_ansible_version: '2.0'
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+    - name: EL
+      versions:
+        - '7'
+        - '8'
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+  galaxy_tags:
+    - hpc
+    - supercomputing
+    - gateway
+    - portal

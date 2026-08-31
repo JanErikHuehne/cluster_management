@@ -36,7 +36,6 @@
   - /etc/munge 
   - /var/lib/munge 
   - /var/log/munge 
-  - /run/munge 
 
 - name: Deploy shared munge key 
   ansible.builtin.copy:
@@ -46,6 +45,23 @@
     group: "{{ munge_group }}"
     mode: "0400"
   notify: restart munge 
+
+ 
+- name: Ensure munge systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/munge.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+- name: Allow non-munge users to access the munge runtime directory
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/munge.service.d/override.conf
+    content: |
+      [Service]
+      RuntimeDirectoryMode=0755
+    mode: "0644"
+  notify: restart munge
 
 - name: Enable and start munge service
   ansible.builtin.systemd:

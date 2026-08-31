@@ -1,6 +1,38 @@
-- name: Configure Slurm compute nodes
-  hosts: slurm_compute
+- name: Configure Slurm cluster
+  hosts: slurm_controller:slurm_compute:slurm_login
   become: true
+  gather_facts: true
+  pre_tasks:
+    - name: Update /etc/hosts with cluster nodes
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED CLUSTER HOSTS"
+        block: |
+          {% for host in (groups['slurm_controller'] + groups['slurm_compute'] + groups['slurm_login']) | unique %}
+          {{ hostvars[host].ansible_host | default(hostvars[host].ansible_default_ipv4.address) }} {{ host }}
+          {% endfor %}
+        state: present
   roles:
     - munge
-    - slurm_compute
+    - role: slurm_controller
+      when: inventory_hostname in groups['slurm_controller']
+    - role: slurm_accounting
+      when: inventory_hostname in groups['slurm_controller']
+    - role: slurm_compute
+      when: inventory_hostname in groups['slurm_compute']
+    - role: slurm_login
+      when: inventory_hostname in groups['slurm_login']
+ 
+- name: Configure AD authentication
+  hosts: ldap_client
+  become: true
+  roles:
+    - ldap_client
+
+- name: Install and configure Open OnDemand
+  hosts: slurm_controller
+  become: true
+  tags:
+    - ood
+  roles:
+    - ood

@@ -1,0 +1,55 @@
+# All of these override defaults in osc.ood_ansible (roles/osc.ood_ansible/defaults/main/*).
+# Full variable reference: https://github.com/OSC/ood-ansible#overrides
+ 
+# ---------------------------------------------------------------------------
+# Core portal
+# ---------------------------------------------------------------------------
+# No DNS available: use the raw IP of the OOD host. Apache's ServerName
+# directive is fine with an IP literal.
+servername: "10.157.154.8"  
+ 
+# No SSL for now: ssl: null is OOD's own default, and serves plain HTTP on
+# port 80 instead of HTTPS on 443. CAUTION: whatever auth method you pick
+# below (password, OIDC, etc) will travel in plaintext over the network like
+# this — fine on a trusted/internal cluster network, not fine if the OOD
+# host is reachable from anywhere untrusted. Switch to a real ssl: block
+# (or a self-signed cert) before exposing this beyond a private network.
+#ssl: null
+clusters:
+  my_slurm_cluster: |
+    ---
+    v2:
+      metadata:
+        title: "CompNeuroCirc"
+      login:
+        host: "10.157.154.8"
+      job:
+        adapter: slurm
+        bin: /usr/local/bin
+        conf: /etc/slurm/slurm.conf
+      batch_connect:
+        basic:
+          script_wrapper: "#!/bin/bash\n%s"
+
+
+ood_install_apps:
+  jupyter:
+    repo: https://github.com/OSC/bc_example_jupyter.git
+    dest:  "{{ ood_sys_app_dir }}"
+    version: master 
+  code_server:
+    repo: https://github.com/OSC/bc_osc_codeserver.git
+    dest: "{{ ood_sys_app_dir }}"
+    version: master 
+  
+# ---------------------------------------------------------------------------
+# Authentication: Basic Auth -> PAM -> sssd -> Active Directory (ads.mwn.de)
+# Reuses the sssd config already on this box. See roles/ood/tasks/main.yml
+# for the PAM module install + /etc/pam.d/ood service file this depends on.
+# ---------------------------------------------------------------------------
+httpd_auth:
+  - 'AuthType Basic'
+  - 'AuthName "Open OnDemand"'
+  - 'AuthBasicProvider PAM'
+  - 'AuthPAMService ood'
+  - 'Require valid-user'

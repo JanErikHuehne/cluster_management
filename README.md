@@ -6,12 +6,15 @@ This repository contains an Ansible build for the CompNeuro compute cluster.
 
 
 - LDAP 
-    - sss
+    - Lives within the ldap_client role
 - Slurm 
     - sss 
 - lmod 
     - ll
 - OnDemand (OOD)
+    - Lives within the ood role
+    - setup on the login node
+
     - a web front-end that shells out to existing cluster tools 
     - Every feature in OOD is the same commands a user would type by hand just triggered by the web interface
     - OOD does not run a shared web server for everyone, it spawens a separate process as each user, so a job submitted through the portal runs with that person's acutal Unix permissions, not some shared "ondemand" service account. 
@@ -34,3 +37,10 @@ Storage Tiers:
 
 - The BeeGFS needs a documented age-based cleanup 
 - Mounting Storage mount as read-only on compute nodes
+
+
+
+- Webservices
+    - https://slurm-web.com/#features
+
+How to get TLS Certificates for the webservices?

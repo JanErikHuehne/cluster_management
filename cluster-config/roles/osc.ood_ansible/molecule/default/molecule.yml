@@ -1,0 +1,43 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: ${CONTAINER_RT:-docker}
+
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+
+platforms:
+  - name: default
+    image: ${IMAGE:-"rockylinux:8"}
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  - name: custom
+    image: ${IMAGE:-"rockylinux:8"}
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  - name: oidc
+    image: ${IMAGE:-"rockylinux:8"}
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+provisioner:
+  name: ansible
+
+verifier:
+  name: ansible

@@ -1,109 +1,94 @@
-- name: Install build dependencies 
+- name: Install build dependencies
   ansible.builtin.apt:
-  name: 
-  - build-essential
-  - libmunge-dev
-  - munge 
-  - libssl-dev 
-  - libpam0g-dev 
-  - libreadline-dev
-  - libcurses-dev 
-  - libhttp-parser-dev 
-  - libhyaml-dev 
-  - libcur14-openssl-dev 
-  - man2html 
-  - pkg-config 
-  - cmake 
-  - dpkg-dev
-  state: present
-  update_cache: true
-
-- name: Check installed libjwt version
-  ansible.builtin.command: dpkg-query -W -f='${Version}' libjwt-dev
-  register: libjwt_check
-  changed_when: false
-  failed_when: false
-
-- name: Determine if libjwt needs to be built from source
-  ansible.builtin.set_fact:
-    libjwt_needs_build: >-
-      {{ libjwt_check.rc != 0 or
-         libjwt_check.stdout is version(slurm_min_libjwt_version, '<') }}
-
-- name: Build libjwt from source (Ubuntu repo version too old/missing)
-  when: libjwt_needs_build
-  block:
-    - name: Install jansson (libjwt dependency)
-      ansible.builtin.apt:
-        name: libjansson-dev
-        state: present
-
-    - name: Clone libjwt source
-      ansible.builtin.git:
-        repo: https://github.com/benmcollins/libjwt.git
-        dest: /usr/local/src/libjwt
-        version: "v{{ libjwt_source_version }}"
-
-    - name: Build and install libjwt
-      ansible.builtin.shell: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release .
-        cmake --build build
-        cmake --install build
-      args:
-        chdir: /usr/local/src/libjwt
-        creates: /usr/local/lib/libjwt.so
-
-    - name: Refresh linker cache
-      ansible.builtin.command: ldconfig
+    name:
+      - build-essential
+      - libmunge-dev
+      - munge
+      - libssl-dev
+      - libpam0g-dev
+      - libreadline-dev
+      - libncurses-dev
+      - libhttp-parser-dev
+      - libyaml-dev
+      - libcurl4-openssl-dev
+      - libjwt-dev
+      - man2html
+      - pkg-config
+      - cmake
+      - dpkg-dev
+      - libjson-c-dev
+      - libdbus-1-dev      # cgroup/v2
+      - libhwloc-dev       # CPU topology detection
+      - libmariadb-dev
+     
       
+
+    state: present
+    update_cache: true
+
 - name: Create slurm group
   ansible.builtin.group:
     name: "{{ slurm_group }}"
     gid: "{{ slurm_gid }}"
-    system: true 
-  
-- name: Create slurm user  
+    system: true
+
+- name: Create slurm user
   ansible.builtin.user:
-    name : "{{ slurm_user }}"
-    group : "{{ slurm_group }}"
-    uid: " {{ slurm_uid }}"
-    system : true 
-    shell: /sbin/nologin 
-    home : "{{ slurm_state_save_location }}"
-    create_home : false
+    name: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    uid: "{{ slurm_uid }}"
+    system: true
+    shell: /sbin/nologin
+    home: "{{ slurm_state_save_location }}"
+    create_home: false
 
 - name: Create Slurm state and log directories
   ansible.builtin.file:
     path: "{{ item }}"
-    state: directory 
-    owner : "{{ slurm_user }}"
-    group : "{{ slurm_group }}"
+    state: directory
+    owner: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
     mode: "0755"
   loop:
-   - '{{ slurm_state_save_location }}'
-   - '{{ slurm_log_dir }}'
+    - "{{ slurm_state_save_location }}"
+    - "{{ slurm_log_dir }}"
 
-- name: Download Slurm {{ slurm_version }} source 
+- name: Download Slurm {{ slurm_version }} source
   ansible.builtin.get_url:
     url: "https://download.schedmd.com/slurm/slurm-{{ slurm_version }}.tar.bz2"
     dest: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
     mode: "0644"
 
-- name: Extract Slurm source 
-  ansible:builtin.unarchive:
+- name: Create Slurm build directory
+  ansible.builtin.file:
+    path: "{{ slurm_build_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Slurm config directory
+  ansible.builtin.file:
+    path: /etc/slurm
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Extract Slurm source
+  ansible.builtin.unarchive:
     src: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
     dest: "{{ slurm_build_dir }}"
     remote_src: true
     creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/configure"
 
-
-- name : Confiugre Slurm build
+- name: Configure Slurm build
   ansible.builtin.command:
     cmd: "./configure {{ slurm_configure_opts | join(' ') }}"
-    chdir:  "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
-    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/Makefile"
-    
-- name: Build and install Slurm 
+    chdir: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
+    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/config.status"
+
+- name: Build and install Slurm
   ansible.builtin.command:
     cmd: "make -j{{ ansible_processor_vcpus }} install"
     chdir: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
@@ -112,31 +97,25 @@
 - name: Refresh linker cache after install
   ansible.builtin.command: ldconfig
 
-- name: Deploy slurm.conf 
+- name: Deploy slurm.conf
   ansible.builtin.template:
-    src: slurm.conf.j2 
-    dest : /etc/slurm/slurm.conf 
+    src: "{{ playbook_dir }}/templates/slurm.conf.j2"
+    dest: /etc/slurm/slurm.conf
     owner: "{{ slurm_user }}"
     group: "{{ slurm_group }}"
     mode: "0644"
   notify: restart slurmctld
 
-- name: Install slurmctld systemd unit 
+- name: Install slurmctld systemd unit
   ansible.builtin.copy:
     src: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/etc/slurmctld.service"
     dest: /etc/systemd/system/slurmctld.service
-    remote_src: true 
-  notify: reload systmd
+    remote_src: true
+  notify: reload systemd
 
-- name: Enable and start slurmctld 
-  ansible.builtin.systmd:
-    name: slurmctld 
-    enabled: true 
+- name: Enable and start slurmctld
+  ansible.builtin.systemd:
+    name: slurmctld
+    enabled: true
     state: started
     daemon_reload: true
-
-
-
-
-
-

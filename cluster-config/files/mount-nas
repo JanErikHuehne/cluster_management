@@ -1,0 +1,22 @@
+#!/bin/bash
+# Restricts CIFS mounts to under /nas only
+set -euo pipefail
+if [ "$1" != "-o" ] && [ "$#" -lt 3 ]; then
+    echo "Usage: $0 <share> <mountpoint> -o <options>"
+    exit 1
+fi
+SHARE="$1"
+MOUNTPOINT="$2"
+# Resolve to an absolute, canonical path (blocks ../ tricks, symlink escapes)
+REAL_MOUNTPOINT=$(realpath -m "$MOUNTPOINT")
+case "$REAL_MOUNTPOINT" in
+    /nas/*)
+        ;;
+    *)
+        echo "Error: mount point must be under /nas" >&2
+        exit 1
+        ;;
+esac
+shift 2
+mkdir -p "$REAL_MOUNTPOINT"
+exec /bin/mount -t cifs "$SHARE" "$REAL_MOUNTPOINT" "$@"

@@ -1,0 +1,61 @@
+- name: Create apps base directory
+  ansible.builtin.file:
+    path: "{{ ood_base_conf_dir }}/apps"
+    state: directory
+    mode: 'u=rwx,g=rx,o=rx'
+
+- name: Create apps directory
+  ansible.builtin.file:
+    path: "{{ ood_base_conf_dir }}/apps/{{ item }}"
+    state: directory
+    mode: 'u=rwx,g=rx,o=rx'
+  loop: "{{ ood_apps.keys() | list }}"
+
+- name: Create apps submit dir
+  ansible.builtin.file:
+    dest: "{{ ood_base_conf_dir }}/apps/{{ item.key }}/submit"
+    state: directory
+    mode: 'u=rwx,g=rx,o=rx'
+  when: item.value.submit is defined
+  loop: "{{ ood_apps | default({}) | dict2items }}"
+
+- name: Create apps submit template/file
+  ansible.builtin.copy:
+    content: "{{ item.value.submit }}"
+    dest: "{{ ood_base_conf_dir }}/apps/{{ item.key }}/submit/submit.yml.erb"
+    mode: 'u=rw,g=r,o=r'
+  when: item.value.submit is defined
+  loop: "{{ ood_apps | default({}) | dict2items }}"
+
+- name: Create apps yml file with cluster name
+  ansible.builtin.template:
+    src: app.yml.j2
+    dest: "{{ ood_base_conf_dir }}/apps/{{ item.key }}/{{ item.value.cluster }}.yml"
+    mode: 'u=rw,g=r,o=r'
+  when: item.value.cluster is defined
+  loop: "{{ ood_apps | default({}) | dict2items }}"
+
+- name: Create apps env file
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ ood_base_conf_dir }}/apps/{{ item.key }}/env"
+    mode: 'u=rw,g=r,o=r'
+  when: item.value.env is defined
+  loop: "{{ ood_apps | default({}) | dict2items }}"
+
+- name: Create apps initializers directory when defined
+  ansible.builtin.file:
+    path: "{{ ood_base_conf_dir }}/apps/{{ item.key }}/initializers"
+    state: directory
+    mode: '0755'
+  when: item.value.initializers is defined
+  loop: "{{ ood_apps | default({}) | dict2items }}"
+
+- name: Copy apps initializers when those are defined
+  ansible.builtin.copy:
+    src: "{{ item.value.initializers }}"
+    dest: "{{ ood_base_conf_dir }}/apps/{{ item.key }}/initializers"
+    mode: '0644'
+    directory_mode: yes
+  when: item.value.initializers is defined
+  loop: "{{ ood_apps | default({}) | dict2items }}"

@@ -16,6 +16,13 @@
     state: present
     update_cache: true 
 
+- name: Stop slurm services before user/group changes
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ slurm_services | reverse | list }}"
+  failed_when: false
+
 - name: Create slurm group
   ansible.builtin.group:
     name: "{{ slurm_group }}"
@@ -26,7 +33,7 @@
   ansible.builtin.user:
     name : "{{ slurm_user }}"
     group : "{{ slurm_group }}"
-    uid: " {{ slurm_uid }}"
+    uid: "{{ slurm_uid }}"
     system : true 
     shell: /sbin/nologin 
     home: "{{ slurm_spool_dir }}"
@@ -88,14 +95,14 @@
 - name: Refresh linker cache after install
   ansible.builtin.command: ldconfig
 
-- name: Deploy slurm_conf
+- name: Deploy task_prolog script
   ansible.builtin.template:
-    src: slurm.conf.j2 
-    dest: /etc/slurm/slurm.conf 
-    owner: "{{ slurm_user }}"
-    group: "{{ slurm_group }}"
-    mode: "0644"
-  notify: restart slurmd 
+    src: task_prolog.sh.j2
+    dest: /etc/slurm/task_prolog.sh
+    owner: root
+    group: root
+    mode: "0755"
+  notify: restart slurmd
 
 - name: Deploy cgroup.conf
   ansible.builtin.template:
@@ -106,6 +113,16 @@
     mode: "0644"
   notify: restart slurmd 
 
+- name: Deploy slurm_conf
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/templates/slurm.conf.j2"
+    dest: /etc/slurm/slurm.conf 
+    owner: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    mode: "0644"
+  notify: restart slurmd 
+
+
 - name: Install slurmd systemd unit 
   ansible.builtin.copy:
     src: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/etc/slurmd.service"
@@ -113,10 +130,9 @@
     remote_src: true 
   notify: reload systemd 
 
-- name: Enable and start slurmd 
+- name: Ensure slurm services are running
   ansible.builtin.systemd:
-    name: slurmd 
-    enabled: true 
-    state: started 
-    daemon_reload: true 
-
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop: "{{ slurm_services }}"

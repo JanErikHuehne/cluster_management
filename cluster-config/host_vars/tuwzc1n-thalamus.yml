@@ -1,0 +1,7 @@
+slurm_cpus: 96
+slurm_sockets: 2
+slurm_cores: 24
+slurm_threads: 2
+slurm_real_memory: 316000
+sssd_sasl_authid: TUWZC1N-THALAMU$
+

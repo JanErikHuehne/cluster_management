@@ -1,1 +1,10 @@
+slurm_cpus: 112
+slurm_sockets: 2
+slurm_cores: 28
+slurm_threads: 2
+slurm_real_memory: 257528
+slurm_core_spec_count: 4
+slurm_mem_spec_limit: 8192
+
 sssd_sasl_authid: TUWZC1N-HABENUL$
+slurm_services: [slurmdbd, slurmd, slurmctld]

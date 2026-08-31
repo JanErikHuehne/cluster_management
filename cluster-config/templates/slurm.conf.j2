@@ -1,0 +1,37 @@
+ClusterName={{ slurm_cluster_name }}
+SlurmctldHost={{ slurm_controller_host }}
+AuthType=auth/munge
+CredType=cred/munge
+SlurmUser={{ slurm_user }}
+SlurmdUser=root
+StateSaveLocation={{ slurm_state_save_location }}
+SlurmdSpoolDir={{ slurm_spool_dir }}
+SlurmctldPort=6817
+SlurmdPort=6818
+SrunPortRange=60000-60999
+SlurmctldPidFile=/run/slurm/slurmctld.pid
+SlurmdPidFile=/run/slurm/slurmd.pid
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/affinity,task/cgroup
+TaskPluginParam=Threads
+SelectType=select/cons_tres
+SelectTypeParameters=CR_CPU_Memory
+SchedulerType=sched/backfill
+ReturnToService=2
+SlurmdDebug=info
+
+MaxArraySize=50000
+MaxJobCount=100000
+
+TaskProlog=/etc/slurm/task_prolog.sh
+
+AccountingStorageType=accounting_storage/slurmdbd
+AccountingStorageHost={{ slurm_controller_host }}
+AccountingStoragePort=6819
+
+
+{% for host in groups['slurm_compute'] %}
+NodeName={{ host }} CPUs={{ hostvars[host].slurm_cpus }} Boards=1 SocketsPerBoard={{ hostvars[host].slurm_sockets }} CoresPerSocket={{ hostvars[host].slurm_cores }} ThreadsPerCore={{ hostvars[host].slurm_threads }} RealMemory={{ hostvars[host].slurm_real_memory }}{% if hostvars[host].slurm_core_spec_count is defined %} CoreSpecCount={{ hostvars[host].slurm_core_spec_count }}{% endif %}{% if hostvars[host].slurm_mem_spec_limit is defined %} MemSpecLimit={{ hostvars[host].slurm_mem_spec_limit }}{% endif %} State=UNKNOWN
+{% endfor %}\
+
+PartitionName=compute Nodes=ALL Default=YES MaxTime=INFINITE State=UP

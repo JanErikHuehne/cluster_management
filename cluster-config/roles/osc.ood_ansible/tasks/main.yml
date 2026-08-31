@@ -1,0 +1,34 @@
+- name: Include distribution variables
+  block:
+    - name: Include distribution variables
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_distribution }}/{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_distribution }}.yml"
+      tags: [ 'always' ]
+  rescue:
+    - name: Change error message
+      ansible.builtin.fail:
+        msg: "unable to find anything in vars/ for this operating system! {{ ansible_distribution }}"
+
+- name: Include install tasks when installing package
+  ansible.builtin.import_tasks: install-package.yml
+  become: true
+  tags: [ 'install' ]
+
+- name: Include configure tasks when configuring
+  ansible.builtin.import_tasks: configure.yml
+  become: true
+  tags: [ 'configure' ]
+
+- name: Include install app tasks when installing apps
+  ansible.builtin.import_tasks: install-apps.yml
+  when: ood_install_apps is defined
+  become: true
+  tags: [ 'install' ]
+
+- name: Include configure app tasks when configuring
+  ansible.builtin.import_tasks: apps.yml
+  when: ood_apps is defined
+  become: true
+  tags: [ 'configure' ]

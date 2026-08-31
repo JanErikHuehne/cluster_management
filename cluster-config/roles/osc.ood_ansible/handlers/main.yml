@@ -1,0 +1,29 @@
+---
+- name: Restart apache httpd
+  ansible.builtin.systemd:
+    name: "{{ apache_service_name }}"
+    state: "{{ 'restarted' if 'started' in apache_service_state else omit }}" # effectively makes handler conditional on state=[re]started
+    enabled: "{{ apache_service_enabled }}"
+  become: true
+
+- name: Restart ondemand-dex
+  ansible.builtin.systemd:
+    name: "{{ ondemand_dex_service_name }}"
+    state: "{{ 'restarted' if 'started' in ondemand_dex_service_state else omit }}" # effectively makes handler conditional on state=[re]started
+    enabled: "{{ ondemand_dex_service_enabled }}"
+  become: true
+  when: install_ondemand_dex
+
+- name: Update nginx stage
+  ansible.builtin.command: "{{ ood_base_dir }}/nginx_stage/sbin/update_nginx_stage"
+  become: true
+  changed_when: true
+
+- name: Restart httpd htcacheclean
+  ansible.builtin.systemd:
+    name: httpd24-htcacheclean
+    state: restarted
+  become: true
+  # FIXME: debian could benefit from this, but would need additional installs
+  # even in centos:8 this is just a binary, not a systemd file
+  when: (not install_from_src) and (ansible_os_family == "RedHat" and ansible_distribution_major_version < '8') and (not disable_htcacheclean)

@@ -3,10 +3,23 @@ all:
     ldap_client:
       hosts:
         tuwzc1n-insula:
+          ansible_host: 10.157.154.7
+        tuwzc1n-habenula:
+           ansible_host: 10.157.154.8
     slurm_compute:
       hosts: 
         tuwzc1n-insula:
           ansible_host: 10.157.154.7
+        tuwzc1n-habenula:
+          ansible_host: 10.157.154.8
+    slurm_controller:
+      hosts:
+        tuwzc1n-habenula:
+          ansible_host: 10.157.154.8
+    slurm_login:
+      hosts:
+        tuwzc1n-hippocampus:
+          ansible_host: 10.157.182.10
   vars:
     ansible_user: janhuehne
     ansible_become: true 

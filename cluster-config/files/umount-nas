@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+MOUNTPOINT=$(realpath -m "$1")
+case "$MOUNTPOINT" in
+    /nas/*)
+        ;;
+    *)
+        echo "Error: can only unmount paths under /nas" >&2
+        exit 1
+        ;;
+esac
+exec /bin/umount "$MOUNTPOINT"

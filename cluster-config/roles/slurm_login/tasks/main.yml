@@ -1,0 +1,136 @@
+- name: Install build dependencies
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - libssl-dev
+      - libpam0g-dev
+      - libncurses-dev
+      - libhttp-parser-dev
+      - libyaml-dev
+      - libcurl4-openssl-dev
+      - libjwt-dev
+      - libjson-c-dev
+      - libdbus-1-dev
+      - libhwloc-dev
+      - pkg-config
+    state: present
+    update_cache: true
+
+- name: Create slurm group
+  ansible.builtin.group:
+    name: "{{ slurm_group }}"
+    gid: "{{ slurm_gid }}"
+    system: true
+
+- name: Create slurm user
+  ansible.builtin.user:
+    name: "{{ slurm_user }}"
+    group: "{{ slurm_group }}"
+    uid: "{{ slurm_uid }}"
+    system: true
+    shell: /sbin/nologin
+    home: /etc/slurm
+    create_home: false
+
+- name: Download Slurm {{ slurm_version }} source
+  ansible.builtin.get_url:
+    url: "https://download.schedmd.com/slurm/slurm-{{ slurm_version }}.tar.bz2"
+    dest: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
+    mode: "0644"
+
+- name: Create Slurm build directory
+  ansible.builtin.file:
+    path: "{{ slurm_build_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Slurm config directory
+  ansible.builtin.file:
+    path: /etc/slurm
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Extract Slurm source
+  ansible.builtin.unarchive:
+    src: "/tmp/slurm-{{ slurm_version }}.tar.bz2"
+    dest: "{{ slurm_build_dir }}"
+    remote_src: true
+    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/configure"
+
+- name: Configure slurm build
+  ansible.builtin.command:
+    cmd: "./configure {{ slurm_login_configure_opts | join(' ') }}"
+    chdir: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
+    creates: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}/config.status"
+
+- name: Build and install Slurm
+  ansible.builtin.command:
+    cmd: "make -j{{ ansible_processor_vcpus }} install"
+    chdir: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
+    creates: "{{ slurm_install_prefix }}/bin/srun"
+
+- name: Refresh linker cache after install
+  ansible.builtin.command: ldconfig
+
+- name: Deploy slurm.conf
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/templates/slurm.conf.j2"
+    dest: /etc/slurm/slurm.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure slurmd is not installed/running on login node
+  ansible.builtin.systemd:
+    name: slurmd
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Deploy pam_slurm_adopt stanza for sshd
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/sshd
+    line: "account    required     pam_slurm_adopt.so"
+    insertafter: "^account"
+    state: present
+  when: slurm_login_pam_adopt | bool
+  notify: restart sshd
+
+
+- name: Ensure /nas exists as mount root
+  ansible.builtin.file:
+    path: /nas
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy mount-nas wrapper script
+  ansible.builtin.copy:
+    src: mount-nas
+    dest: /usr/local/bin/mount-nas
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy umount-nas wrapper script
+  ansible.builtin.copy:
+    src: umount-nas
+    dest: /usr/local/bin/umount-nas
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Allow all users passwordless sudo for mount-nas/umount-nas only
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/nas_mount
+    content: |
+      ALL ALL=(root) NOPASSWD: /usr/local/bin/mount-nas, /usr/local/bin/umount-nas
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"

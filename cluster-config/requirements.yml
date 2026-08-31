@@ -1,0 +1,8 @@
+---
+# Install with: ansible-galaxy install -r requirements.yml -p roles/
+roles:
+  - name: osc.ood_ansible
+    src: https://github.com/OSC/ood-ansible.git
+    # Pin to a release tag that matches the OOD version you want (check
+    # https://github.com/OSC/ood-ansible/tags). "master" tracks latest dev.
+    version: master

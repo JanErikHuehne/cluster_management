@@ -1,0 +1,67 @@
+- name: Copy custom cluster files to container
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/tmp/{{ item.dest }}"
+    mode: 'u=rw,g=r,o=r'
+  with_items:
+    - { src: "fixtures/clusters.d/my_cluster.yml", dest: "my_cluster.yml" }
+    - { src: "fixtures/clusters.d/another_cluster.yml", dest: "another_cluster.yml" }
+    - { src: "fixtures/apps/dashboard.env", dest: "dashboard.env" }
+    - { src: "fixtures/apps/files.env", dest: "files.env" }
+    - { src: "fixtures/apps/bc_desktop/", dest: "bc_desktop/" }
+    - { src: "fixtures/config/auth_openidc.conf", dest: "auth_openidc.conf" }
+    - { src: "fixtures/ondemand.d/ondemand_custom.yml", dest: "ondemand.yml" }
+    - { src: "fixtures/ondemand.d/motd.yml", dest: "motd.yml" }
+    - { src: "fixtures/ondemand.d/globus.yml", dest: "globus.yml" }
+
+- name: Verify config files
+  ansible.builtin.command: "diff /tmp/{{ item.left }} {{ item.right }}"
+  with_items:
+    - { left: "dashboard.env", right: "{{ ood_base_conf_dir }}/apps/dashboard/env" }
+    - { left: "files.env", right: "{{ ood_base_conf_dir }}/apps/files/env" }
+    - { left: "my_cluster.yml", right: "{{ ood_base_conf_dir }}/clusters.d/my_cluster.yml" }
+    - { left: "another_cluster.yml", right: "{{ ood_base_conf_dir }}/clusters.d/another_cluster.yml" }
+    - { left: "bc_desktop/my_cluster.yml", right: "{{ ood_base_conf_dir }}/apps/bc_desktop/my_cluster.yml" }
+    - { left: "bc_desktop/submit/submit.yml.erb", right: "{{ ood_base_conf_dir }}/apps/bc_desktop/submit/submit.yml.erb" }
+    - { left: "auth_openidc.conf", right: "{{ apache_conf_dir }}/auth_openidc.conf" }
+    - { left: "ondemand.yml", right: "{{ ood_base_conf_dir }}/ondemand.d/ondemand.yml" }
+    - { left: "motd.yml", right: "{{ ood_base_conf_dir }}/ondemand.d/motd.yml" }
+    - { left: "globus.yml", right: "{{ ood_base_conf_dir }}/ondemand.d/globus.yml" }
+  changed_when: false
+
+- name: Verify sys/jupyter was installed correctly
+  ansible.builtin.git:
+    repo: 'https://github.com/OSC/bc_example_jupyter.git'
+    dest: '/var/www/ood/apps/sys/jupyter'
+    clone: no
+    update: no
+    version: master
+
+- name: Verify dev/customdir app was installed correctly
+  ansible.builtin.git:
+    repo: 'https://github.com/OSC/bc_example_jupyter.git'
+    dest: '/var/www/ood/apps/dev/customdir'
+    clone: no
+    update: no
+    version: v1.0.1
+
+- name: Get globus.yml file stats.
+  stat:
+    path: /etc/ood/config/ondemand.d/globus.yml
+  register: globus_perms
+
+- debug: var=globus_perms
+
+- name: Assert that globus.yml has correct permissions
+  assert:
+    that:
+      - "globus_perms.stat.mode == '0640'"
+    success_msg: 'globus.yml has correct permissions.'
+    fail_msg: "globus.yml permissions are {{ globus_perms.stat.mode }} when they should be '0640'"
+
+- name: Assert that globus.yml has correct group ownership
+  assert:
+    that:
+      - "globus_perms.stat.gr_name == 'specialusers'"
+    success_msg: 'globus.yml has correct group ownership.'
+    fail_msg: "globus.yml group ownership is {{ globus_perms.stat.gr_name }} when they should be 'specialusers'"

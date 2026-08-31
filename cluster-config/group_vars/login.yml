@@ -1,0 +1,5 @@
+sssd_access_provider: simple
+sssd_allow_groups:
+  - tuwzc1ngv-0srvalusr
+  - tuwzc1ngv-0srvosadm
+  - tuwza7ygv-0itsysadm

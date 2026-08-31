@@ -1,0 +1,16 @@
+slurm_version: "26.05.2"
+
+slurm_build_dir: /usr/local/src/slurm
+slurm_install_prefix: /usr/local
+
+slurm_login_configure_opts:
+  - "--prefix={{ slurm_install_prefix }}"
+  - "--with-munge"
+  - "--with-pam_dir=/lib/x86_64-linux-gnu/security"
+  - "--enable-pam"
+  - "--sysconfdir=/etc/slurm"
+
+slurm_login_pam_adopt: false
+
+
+nas_mount_scripts_src_dir: "{{ playbook_dir }}/files/nas_mount"

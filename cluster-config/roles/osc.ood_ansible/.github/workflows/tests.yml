@@ -1,0 +1,70 @@
+name: Molecule Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - release-*
+
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+      - release-*
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  package-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        image:
+          - 'rockylinux:8'
+          - 'rockylinux:9'
+          - 'rockylinux/rockylinux:10'
+          - 'almalinux:8'
+          - 'almalinux:9'
+          - 'almalinux:10'
+          - 'ubuntu:24.04'
+          - 'ubuntu:26.04'
+          - 'debian:12'
+          - 'debian:13'
+        scenario:
+          - 'default'
+          - 'upgrade'
+        exclude:
+          # 4.1 did not support these operating systems
+          - scenario: upgrade
+            image: 'ubuntu:26.04'
+          - scenario: upgrade
+            image: 'debian:13'
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+      - name: setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: install dependencies
+        run: |
+          python3 -m pip install -r molecule/requirements.txt
+          ansible-galaxy collection install community.general
+          sudo apt update && sudo apt upgrade -y && sudo apt install -y podman
+
+      - name: run tests
+        run: molecule test --scenario-name=${{ matrix.scenario }}
+        env:
+          IMAGE: '${{ matrix.image }}'
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          CONTAINER_RT: 'podman'
+          ANSIBLE_ROLES_PATH: "$ANSIBLE_ROLES_PATH:$PWD/.."

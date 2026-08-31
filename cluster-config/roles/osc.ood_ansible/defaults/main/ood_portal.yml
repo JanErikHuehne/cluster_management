@@ -1,0 +1,179 @@
+# This file holds all the defaults for the /etc/ood/config/ood_portal.yml
+# 
+# See https://osc.github.io/ood-documentation/latest/reference/files/ood-portal-yml.html
+# for more details on this file and it's configurations.
+
+# Use this variable to define anything you need inside ood VirtualHost that
+# isn't already there.
+# Tip: Could be multi-line yml with | or >, so you could add new Location
+# directives or a whole lot more.
+#
+# httpd_extra:
+
+# httpd_listen_addr_port:
+# - 80
+# - 443
+
+httpd_use_rewrites: true
+ood_http_redirect_host: '%{HTTP_HOST}'
+maintenance_ip_allowlist: []
+use_maintenance: true
+# security_csp_frame_ancestors:
+# security_strict_transport:
+#strip_proxy_headers: ["Authorization", "OIDC_CLAIM_sub", "OIDC_CLAIM_preferred_username", "OIDC_CLAIM_given_name", "OIDC_CLAIM_zoneinfo", "OIDC_CLAIM_locale", "OIDC_CLAIM_email", "OIDC_CLAIM_email_verified", "OIDC_CLAIM_iss", "OIDC_CLAIM_nonce", "OIDC_CLAIM_aud", "OIDC_CLAIM_acr", "OIDC_CLAIM_azp", "OIDC_CLAIM_auth_time", "OIDC_CLAIM_exp", "OIDC_CLAIM_iat", "OIDC_CLAIM_jti", "OIDC_access_token", "OIDC_access_token_expires"]
+#strip_proxy_cookies: ["mod_auth_openidc_session_\\d+", "mod_auth_openidc_session"]
+
+servername: localhost
+# proxy_server:
+httpd_port: 80
+server_aliases: []
+
+# ssl_cert: "/etc/pki/tls/certs/www.example.com.crt"
+# ssl_cert_key: "/etc/pki/tls/certs/www.example.com.key"
+# ssl_cert_chain: "/etc/pki/tls/certs/www.example.com.chain"
+
+# ssl:
+# - "SSLCertificateFile {{ ssl_cert }}"
+# - "SSLCertificateKeyFile {{ ssl_cert_key }}"
+# - "SSLCertificateChainFile {{ ssl_cert_chain }}"
+
+httpd_auth:
+- AuthType Basic
+- AuthName "private"
+- AuthUserFile "{{ apache_etc_dir }}/.htpasswd"
+- RequestHeader unset Authorization
+- Require valid-user
+
+ood_base_dir: '/opt/ood'
+
+lua_root: "{{ ood_base_dir }}/mod_ood_proxy/lib"
+lua_log_level: info
+
+httpd_loggers:
+- "LogLevel lua_module:{{ lua_log_level }}"
+
+# httpd_error_log: 'error.log'
+# httpd_access_log: 'access.log'
+# httpd_logformat:
+
+user_map_match: '.*'
+# user_map_cmd: null
+# user_env: REMOTE_USER
+# map_fail_uri: /register
+
+pun_stage_cmd: "sudo {{ ood_base_dir }}/nginx_stage/sbin/nginx_stage"
+# pun_pre_hook_root_cmd: null
+# pun_pre_hook_exports: null
+
+# node_uri: '/node'
+# rnode_uri: '/rnode'
+# secure_node_uri: '/secure-node'
+# secure_rnode_uri: '/secure-rnode'
+# ssl_proxy: []
+host_regex: '[^/]+'
+
+pun_uri: "/pun"
+pun_socket_root: "/var/run/ondemand-nginx"
+pun_max_retries: 5
+
+nginx_uri: /nginx
+root_uri: "{{ pun_uri }}/sys/dashboard"
+
+nginx_app_root:
+  dev: "{{ ood_dev_app_dir }}/%{owner}/gateway/%{name}"
+  usr: "{{ ood_usr_app_dir }}/%{owner}/gateway/%{name}"
+  sys: "{{ ood_sys_app_dir }}/%{name}"
+
+httpd_public_uri: "/public"
+httpd_public_root: "/var/www/ood/public"
+
+logout_uri: "/logout"
+logout_redirect: "/pun/sys/dashboard/logout"
+
+# write the OIDC settings in the same file as the ood-portal configurations
+# when using the ansible ood-portal.conf.j2 template
+oidc_settings_samefile: false
+
+# oidc_uri:
+# oidc_discover_uri:
+# oidc_discover_root:
+
+# register_uri:
+# register_root:
+# register_method: 'Alias'
+# register_method_options: null
+
+# # Apache for mod_auth_openidc, default undef
+# ood_auth_openidc:
+#   OIDCSessionMaxDuration: 28888
+#   OIDCClientID: myid
+#   OIDCProviderMetadataURL: https://localhost/
+#   OIDCCryptoPassphrase: mycryptopass
+
+# # ood-portal-generator oidc configurations
+
+# oidc_provider_metadata_url: null
+# oidc_client_id: null
+# oidc_client_secret: null
+# oidc_remote_user_claim: preferred_username
+# oidc_scope: "openid profile email"
+# oidc_session_inactivity_timeout: 28800
+# oidc_session_max_duration: 28800
+# oidc_state_max_number_of_cookies: "10 true"
+# oidc_cookie_same_site: "On"
+# oidc_settings: {}
+# oidc_crypto_passphrase: changeme
+# dex_uri: null
+# dex_settings: |
+#   dex:
+#     # Default based on if ssl key for ood-portal-generator is defined
+#     ssl: false
+#     # Only used if SSL is disabled
+#     http_port: "5556"
+#     # Only used if SSL is enabled
+#     https_port: "5554"
+#     # tls_cert and tls_key take OnDemand configured values for ssl and copy keys to /etc/ood/dex maintaining file names
+#     tls_cert: null
+#     tls_key: null
+#     storage_file: /etc/ood/dex/dex.db
+#     grpc: null
+#     expiry: null
+#     # Client ID, defaults to servername or FQDN
+#     client_id: null
+#     client_name: OnDemand
+#     # Client secret, value auto generated
+#     # A value that is a filesystem path can be used to store secret in a file
+#     client_secret: /etc/ood/dex/ondemand.secret
+#     # The OnDemand redirectURI is auto-generated, this option allows adding additional URIs
+#     client_redirect_uris: []
+#     # Additional Dex OIDC clients to configure
+#     static_clients: []
+#     # The following example is to configure OpenLDAP
+#     # Docs: https://github.com/dexidp/dex/blob/master/Documentation/connectors/ldap.md
+#     connectors:
+#       - type: ldap
+#         id: ldapg
+#         name: LDAP
+#         config:
+#           host: openldap.my_center.edu:636
+#           insecureSkipVerify: false
+#           bindDN: cn=admin,dc=example,dc=org
+#           bindPW: admin
+#           userSearch:
+#             baseDN: ou=People,dc=example,dc=org
+#             filter: "(objectClass=posixAccount)"
+#             username: uid
+#             idAttr: uid
+#             emailAttr: mail
+#             nameAttr: gecos
+#             preferredUsernameAttr: uid
+#           groupSearch:
+#             baseDN: ou=Groups,dc=example,dc=org
+#             filter: "(objectClass=posixGroup)"
+#             userMatchers:
+#               - userAttr: DN
+#                 groupAttr: member
+#             nameAttr: cn
+#     frontend:
+#       theme: ondemand
+#       dir: /usr/share/ondemand-dex/web
