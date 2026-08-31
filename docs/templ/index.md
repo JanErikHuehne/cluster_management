@@ -6,5 +6,5 @@ Ansible's usual precedence order.
 
 | Template | Renders to | Role |
 |----------|------------|------|
-| [`slurm.conf.j2`](slurm_conf.j2.md) | `/etc/slurm/slurm.conf` | `slurm_compute` |
+| [`slurm.conf.j2`](slurm_conf_j2.md) | `/etc/slurm/slurm.conf` | `slurm_compute` |
 | `task_prolog.sh.j2` | `/etc/slurm/task_prolog.sh` | `slurm_compute` |
