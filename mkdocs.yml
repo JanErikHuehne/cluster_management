@@ -12,9 +12,12 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Roles:
-    - Munge: roles/munge.md
+    - munge: roles/munge.md
+    - ldap_client: roles/ldap_client.md
   - Architecture: architecture.md
   - Host Vars: host_vars/index.md
   - Templates:
       - Overview: templ/index.md
       - slurm.conf.j2: templ/slurm_conf_j2.md
+      - sssd.conf.j2:  templ/sssd_conf_j2.md
+      - krb5.conf.j2:  templ/krb5_conf_j2.md

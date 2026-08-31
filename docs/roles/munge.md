@@ -120,7 +120,7 @@ Between two nodes — this is the check that matters, since it proves the keys
 match:
 
 ```bash
-munge -n | ssh tuwzc1n-thalamus unmunge
+munge -n | ssh tuwzc1n-brainstem unmunge
 ```
 
 A `STATUS: Invalid credential` here means the keys differ. Compare digests
@@ -130,9 +130,3 @@ without exposing the key material:
 sudo md5sum /etc/munge/munge.key    # run on each node, compare
 ```
 
-## Platform note
-
-The role uses `ansible.builtin.apt`, so it targets Debian and Ubuntu only. On
-RHEL-family nodes the package names differ (`munge`, `munge-libs`,
-`munge-devel`) and MUNGE lives in EPEL. Adding such nodes requires either a
-`package` module with a vars file per OS family, or a conditional block.
