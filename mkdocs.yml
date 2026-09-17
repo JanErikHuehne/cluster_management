@@ -1,9 +1,10 @@
-site_name: Cluster Ansible Build 
-repo_url: https://github.com/JanErikHuehne/cluster_management 
+site_name: Cluster Ansible Build
+repo_url: https://github.com/JanErikHuehne/cluster_management
 theme:
   name: material
   features:
     - navigation.sections
+    - navigation.indexes
     - content.code.copy
 markdown_extensions:
   - admonition
@@ -12,16 +13,16 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Node Setup: manual_node_setup/index.md
-  - Roles: roles/index.md
-    - Slurm: 
-      - slurm login: roles/slurm_login.md 
-    - munge: roles/munge.md
-    - ldap_client: roles/ldap_client.md
-   
+  - Roles:
+      - roles/index.md
+      - Slurm:
+          - slurm login: roles/slurm_login.md
+      - munge: roles/munge.md
+      - ldap_client: roles/ldap_client.md
   - Architecture: architecture.md
   - Host Vars: host_vars/index.md
   - Templates:
       - Overview: templ/index.md
       - slurm.conf.j2: templ/slurm_conf_j2.md
-      - sssd.conf.j2:  templ/sssd_conf_j2.md
-      - krb5.conf.j2:  templ/krb5_conf_j2.md
+      - sssd.conf.j2: templ/sssd_conf_j2.md
+      - krb5.conf.j2: templ/krb5_conf_j2.md
