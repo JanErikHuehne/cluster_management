@@ -13,6 +13,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Node Setup: manual_node_setup/index.md
+  - Modules: lmod/index.md
   - Roles:
       - roles/index.md
       - Slurm:
