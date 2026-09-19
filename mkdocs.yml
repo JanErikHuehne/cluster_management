@@ -21,6 +21,7 @@ nav:
           - slurm gpu: roles/slurm_gpu.md
       - BeeGFS:
           - clients: roles/beegfs_client.md
+          - storage (manual): roles/beegfs_storage.md
       - munge: roles/munge.md
       - ldap_client: roles/ldap_client.md
 
