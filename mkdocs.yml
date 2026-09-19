@@ -18,6 +18,7 @@ nav:
       - roles/index.md
       - Slurm:
           - slurm login: roles/slurm_login.md
+          - slurm gpu: roles/slurm_gpu.md
       - BeeGFS:
           - clients: roles/beegfs_client.md
       - munge: roles/munge.md
