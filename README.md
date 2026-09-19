@@ -1,10 +1,5 @@
 # cluster_management
 
-
-This repository contains an Ansible build for the CompNeuro compute cluster.
-
-# cluster_management
-
 Ansible configuration for the CompNeuro compute cluster: Slurm with GPU support, BeeGFS clients, AD login and Open OnDemand.
 
 Documentation: <https://janerikhuehne.github.io/cluster_management/>
