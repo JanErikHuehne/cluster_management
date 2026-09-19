@@ -1,0 +1,3 @@
+beegfs_version: "8.4"
+beegfs_mgmtd_host: beegfs-mgmtd
+beegfs_mountpoint: /scratch

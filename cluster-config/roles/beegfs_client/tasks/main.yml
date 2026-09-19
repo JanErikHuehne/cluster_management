@@ -1,0 +1,68 @@
+- name: BeeGFS repo key
+  ansible.builtin.get_url:
+    url:  "https://www.beegfs.io/release/beegfs_{{ beegfs_version }}/gpg/GPG-KEY-beegfs"
+    dest: /etc/apt/trusted.gpg.d/beegfs.asc
+    mode: "0644"
+
+- name: BeeGFS repo 
+  ansible.builtin.copy:
+    content: "deb [signed-by=/etc/apt/trusted.gpg.d/beegfs.asc] https://www.beegfs.io/release/beegfs_{{ beegfs_version }} {{ ansible_distribution_release }} non-free\n"
+    dest: /etc/apt/sources.list.d/beegfs.list
+    mode: "0644"
+
+- name: Client, tools and what autobuild needs to compile the module 
+  ansible.builtin.apt:
+    name:
+      - beegfs-client
+      - beegfs-tools 
+      - gcc 
+      - make 
+      - linux-headers-amd64 
+      - "linux-headers-{{ ansible_kernel }}"
+    update_cache: true 
+
+ 
+# Secret comes from group_vars/vault.yml as base64 (it may be binary, which
+# copy/b64decode would mangle), and is only rewritten when it actually differs.
+- name: Read current auth secret
+  ansible.builtin.slurp:
+    src: /etc/beegfs/conn.auth
+  register: conn_auth
+  failed_when: false
+  no_log: true
+ 
+- name: Connection auth secret
+  ansible.builtin.shell: base64 -d | install -m 0400 -o root -g root /dev/stdin /etc/beegfs/conn.auth
+  args:
+    stdin: "{{ beegfs_conn_auth_b64 }}"
+  when: conn_auth.content | default('') != beegfs_conn_auth_b64 | regex_replace('\s', '')
+  no_log: true
+  notify: Restart beegfs-client
+
+- name: Client settings
+  ansible.builtin.lineinfile:
+    path: /etc/beegfs/beegfs-client.conf
+    regexp:  '^(\s*{{ item.key }}\s*=)\s*.*$'
+    line: '\g<1> {{ item.value }}'
+    backrefs: true 
+  loop: "{{ {'sysMgmtdHost': beegfs_mgmtd_host, 'connAuthFile': '/etc/beegfs/conn.auth'} | dict2items }}"
+  notify: Restart beegfs-client
+
+- name: Mount point 
+  ansible.builtin.lineinfile:
+    path: /etc/beegfs/beegfs-mounts.conf
+    regexp: '^\S+(\s+/etc/beegfs/beegfs-client\.conf.*)$'
+    line: '{{ beegfs_mountpoint }}\g<1>'
+    backrefs: true
+  notify: Restart beegfs-client
+
+- name: beegfs-client enabled and running
+  ansible.builtin.service:
+    name: beegfs-client
+    enabled: true
+    state: started
+
+
+
+  
+  

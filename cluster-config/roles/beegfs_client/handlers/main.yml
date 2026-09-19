@@ -1,0 +1,4 @@
+- name: Restart beegfs-client
+  ansible.builtin.service:
+    name: beegfs-client
+    state: restarted
