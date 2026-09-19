@@ -1,0 +1,4 @@
+- name: Restart slurmd for GPUs
+  ansible.builtin.service:
+    name: slurmd
+    state: restarted

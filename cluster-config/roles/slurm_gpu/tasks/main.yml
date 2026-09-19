@@ -1,0 +1,58 @@
+# Debian 13, driver branch 595, compute-only driver, open kernel modules via DKMS.
+# Runs after slurm_compute, which provides /etc/slurm and the slurmd service.
+- name: NVIDIA repo (cuda-keyring installs the key and the apt source)
+  ansible.builtin.apt:
+    deb: https://developer.download.nvidia.com/compute/cuda/repos/debian13/x86_64/cuda-keyring_1.1-1_all.deb
+
+- name: Pin the driver branch (installed before the driver, as NVIDIA recommends)
+  ansible.builtin.apt:
+    name: "nvidia-driver-pinning-{{ nvidia_driver_branch }}"
+    update_cache: true
+
+- name: Driver (compute only), open kernel modules and headers for DKMS
+  ansible.builtin.apt:
+    name:
+      - nvidia-driver-cuda
+      - nvidia-kernel-open-dkms
+      - nvidia-persistenced
+      - linux-headers-amd64                  # headers for kernels installed later
+      - "linux-headers-{{ ansible_kernel }}"  # headers for the running kernel
+
+- name: Keep nouveau off the GPUs
+  ansible.builtin.copy:
+    content: |
+      blacklist nouveau
+      options nouveau modeset=0
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    mode: "0644"
+  register: nouveau
+
+- name: Rebuild the initramfs without nouveau
+  ansible.builtin.command: update-initramfs -u
+  when: nouveau is changed
+
+- name: Check whether the driver is loaded
+  ansible.builtin.stat:
+    path: /proc/driver/nvidia/version
+  register: nvidia_loaded
+
+# ponytail: only a node that has never loaded the driver reboots; after a driver
+# upgrade the old module stays loaded and the node needs a manual reboot
+- name: Reboot into the driver
+  ansible.builtin.reboot:
+  when: not nvidia_loaded.stat.exists
+
+- name: nvidia-persistenced enabled and running
+  ansible.builtin.service:
+    name: nvidia-persistenced
+    enabled: true
+    state: started
+
+# slurm_gpu_type and slurm_gpu_count (group_vars/slurm_gpu.yml, or host_vars for a
+# node with other GPUs) also fill the node's Gres= entry in slurm.conf
+- name: gres.conf
+  ansible.builtin.template:
+    src: gres.conf.j2
+    dest: /etc/slurm/gres.conf
+    mode: "0644"
+  notify: Restart slurmd for GPUs
