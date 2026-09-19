@@ -3,44 +3,29 @@
 
 This repository contains an Ansible build for the CompNeuro compute cluster.
 
+# cluster_management
 
+Ansible configuration for the CompNeuro compute cluster: Slurm with GPU support, BeeGFS clients, AD login and Open OnDemand.
 
-- LDAP 
-    - Lives within the ldap_client role
-- Slurm 
-    - sss 
-- lmod 
-    - ll
-- OnDemand (OOD)
-    - Lives within the ood role
-    - setup on the login node
+Documentation: <https://janerikhuehne.github.io/cluster_management/>
 
-    - a web front-end that shells out to existing cluster tools 
-    - Every feature in OOD is the same commands a user would type by hand just triggered by the web interface
-    - OOD does not run a shared web server for everyone, it spawens a separate process as each user, so a job submitted through the portal runs with that person's acutal Unix permissions, not some shared "ondemand" service account. 
-    - Apps are just templated Slurm scripts  
-- BeeGFS
+## Layout
 
+Everything Ansible needs is in `cluster-config/`:
 
-Cluster setup:
+| Path | Contents |
+|---|---|
+| `site.yml` | The main playbook |
+| `inventory.yml` | The nodes and their groups |
+| `group_vars/`, `host_vars/` | Settings per group and per node; `group_vars/all/vault.yml` is encrypted with ansible-vault |
+| `roles/` | One role per component: munge, Slurm, GPU nodes, BeeGFS, AD login, Open OnDemand |
 
-Habenula: Management: slurmctld, slurmdbd, MariaDB, BeeGFS mgmt + compute (CoreSpecCount reserved)
+## Usage
 
-Retina: Login
-Insula, Amygdala : BeeGFS metadata + compute + client
-Cortex, Cerebellum, Cochlea, Thalamus, Hypothalamus + PFC : Compute + BeeGFS storage targets + client
+Run from `cluster-config/`:
 
-Storage Tiers:
-- BeeGFS scratch: - 7.2 TB raw across seven nodes, no mirroring, no backup, converged with compute. 
-- Local storage server: > 400 TB, backedup, slow writes
-- NAS - 50 TB, backed up 
+```bash
+ansible-playbook -i inventory.yml site.yml -K --ask-vault-pass
+```
 
-- The BeeGFS needs a documented age-based cleanup 
-- Mounting Storage mount as read-only on compute nodes
-
-
-
-- Webservices
-    - https://slurm-web.com/#features
-
-How to get TLS Certificates for the webservices?
+`-K` asks for the sudo password on the nodes, and `--ask-vault-pass` for the vault password. To run only part of the setup, add a tag such as `--tags beegfs` or `--tags gpu`. To limit the run to certain nodes, add `-l <host>`.
