@@ -19,6 +19,7 @@ nav:
       - Slurm:
           - slurm login: roles/slurm_login.md
           - slurm gpu: roles/slurm_gpu.md
+        - resource constrains: roles/slurm_constrains.md
       - BeeGFS:
           - clients: roles/beegfs_client.md
           - storage (manual): roles/beegfs_storage.md
