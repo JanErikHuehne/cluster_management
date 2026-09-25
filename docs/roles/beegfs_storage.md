@@ -32,8 +32,8 @@ Decide three things and write them down:
  
 | Decision | Rule | Next free value |
 |---|---|---|
-| Numeric node ID | Next unused storage node ID | 4 |
-| Numeric target ID | Node ID times 100 plus target number, like 201 on node 2 | 401 |
+| Numeric node ID | Next unused storage node ID | 5 |
+| Numeric target ID | Node ID times 100 plus target number, like 201 on node 2 | 501 |
 | Target device | An empty disk or RAID volume on the new node | |
  
 Check that the IDs are really unused in `beegfs health capacity`. An ID must never be reused, and it must never change once a target holds data.
@@ -133,7 +133,7 @@ getent hosts beegfs-mgmtd    # must print 10.157.154.8
 Run the setup script with the IDs from "Before you start". It creates the target directory, writes the IDs into it and edits `/etc/beegfs/beegfs-storage.conf`:
  
 ```bash
-/opt/beegfs/sbin/beegfs-setup-storage -p /data/storage/beegfs_storage -s 3 -i 301 -m beegfs-mgmtd
+/opt/beegfs/sbin/beegfs-setup-storage -p /data/storage/beegfs_storage -s <next_id> -i <next_numeric_target_id> -m beegfs-mgmtd
 ```
  
 Point the service at the auth secret:
