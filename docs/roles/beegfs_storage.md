@@ -32,8 +32,8 @@ Decide three things and write them down:
  
 | Decision | Rule | Next free value |
 |---|---|---|
-| Numeric node ID | Next unused storage node ID | 5 |
-| Numeric target ID | Node ID times 100 plus target number, like 201 on node 2 | 501 |
+| Numeric node ID | Next unused storage node ID | 6 |
+| Numeric target ID | Node ID times 100 plus target number, like 201 on node 2 | 601 |
 | Target device | An empty disk or RAID volume on the new node | |
  
 Check that the IDs are really unused in `beegfs health capacity`. An ID must never be reused, and it must never change once a target holds data.
