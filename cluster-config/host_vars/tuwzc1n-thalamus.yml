@@ -4,4 +4,15 @@ slurm_cores: 24
 slurm_threads: 2
 slurm_real_memory: 316000
 sssd_sasl_authid: TUWZC1N-THALAMU$
+slurm_gpu_type: a40
+slurm_gpu_count: 2
 
+
+sssd_access_provider: simple
+sssd_allow_groups:
+  - tuwzc1ngv-0srvalusr
+  - tuwzc1ngv-0srvosadm
+  - tuwza7ygv-0itsysadm
+
+  
+slurm_weight: 100

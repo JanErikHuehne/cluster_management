@@ -1,0 +1,14 @@
+sssd_sasl_authid: TUWZC1N-CORTEX$
+slurm_weight: 10
+
+sssd_access_provider: simple
+sssd_allow_groups:
+  - tuwzc1ngv-0srvalusr
+  - tuwzc1ngv-0srvosadm
+  - tuwza7ygv-0itsysadm
+
+slurm_cpus: 256
+slurm_sockets: 2
+slurm_cores: 64
+slurm_threads: 2
+slurm_real_memory: 240000

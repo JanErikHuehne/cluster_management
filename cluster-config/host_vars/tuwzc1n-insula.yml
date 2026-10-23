@@ -4,3 +4,11 @@ slurm_cores: 28
 slurm_threads: 2
 slurm_real_memory: 380000
 sssd_sasl_authid: TUWZC1N-INSULA$
+
+slurm_weight: 10
+
+sssd_access_provider: simple
+sssd_allow_groups:
+  - tuwzc1ngv-0srvalusr
+  - tuwzc1ngv-0srvosadm
+  - tuwza7ygv-0itsysadm

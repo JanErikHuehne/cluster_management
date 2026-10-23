@@ -1,0 +1,17 @@
+slurm_cpus: 256
+slurm_sockets: 2
+slurm_cores: 64
+slurm_threads: 2
+slurm_real_memory: 320000
+slurm_core_spec_count: 8
+slurm_mem_spec_limit: 32768
+
+sssd_access_provider: simple
+sssd_allow_groups:
+  - tuwzc1ngv-0srvalusr
+  - tuwzc1ngv-0srvosadm
+  - tuwza7ygv-0itsysadm
+
+sssd_sasl_authid: TUWZC1N-COCHLEA$
+
+slurm_weight: 10

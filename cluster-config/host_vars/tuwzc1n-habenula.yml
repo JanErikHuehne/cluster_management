@@ -8,3 +8,5 @@ slurm_mem_spec_limit: 8192
 
 sssd_sasl_authid: TUWZC1N-HABENUL$
 slurm_services: [slurmdbd, slurmd, slurmctld]
+
+slurm_weight: 50
