@@ -8,7 +8,7 @@ Anything that is identical across nodes belongs in `group_vars/` instead.
 Only genuinely host-specific facts e.g. hardware topology and the node's own AD
 machine account live here.
 
-## Obtaining the values
+## Obtaining the values (necessary for every `slurm compute`)
 
 Run on the node itself. If `slurmd` is installed, it reports the topology
 Slurm will detect at runtime:
@@ -101,6 +101,8 @@ dentry/inode cache and want considerably more than storage daemons.
     `slurm_real_memory` margin only as drain protection.
 
 ### `sssd_sasl_authid`
+Before doing this, please ensure that the name is added in the active directory. Please
+see [here](../active_dir.md) on instructions on how to add a node there. 
 
 The node's Active Directory machine account (`sAMAccountName`), including the
 trailing `$` and excluding the realm. Written into the `[domain/...]` section
