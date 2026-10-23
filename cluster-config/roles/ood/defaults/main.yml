@@ -34,7 +34,7 @@ clusters:
 
 ood_install_apps:
   jupyter:
-    repo: https://github.com/OSC/bc_example_jupyter.git
+    repo: https://github.com/JanErikHuehne/bc_example_jupyter.git
     dest:  "{{ ood_sys_app_dir }}"
     version: master 
   code_server:

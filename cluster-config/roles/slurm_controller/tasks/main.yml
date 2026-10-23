@@ -39,7 +39,7 @@
     uid: "{{ slurm_uid }}"
     system: true
     shell: /sbin/nologin
-    home: "{{ slurm_state_save_location }}"
+    home: "{{ slurm_spool_dir }}"
     create_home: false
 
 - name: Create Slurm state and log directories

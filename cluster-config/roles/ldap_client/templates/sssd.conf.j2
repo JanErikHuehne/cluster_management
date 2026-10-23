@@ -8,7 +8,7 @@ ad_domain = {{ sssd_ad_domain }}
 id_provider = ad
 auth_provider = ad
 chpass_provider = ad
-access_provider = deny
+access_provider = {{ sssd_access_provider }}
 krb5_realm = {{ sssd_krb5_realm }}
 krb5_store_password_if_offline = True
 ldap_schema = rfc2307bis
@@ -23,5 +23,7 @@ ad_gpo_ignore_unreadable = True
 enumerate = False
 dyndns_update = False
 ignore_group_members = True
-simple_allow_groups = {{ sssd_allow_groups | join(' ') }}
+{% if sssd_access_provider == 'simple' and sssd_allow_groups | length > 0 %}
+simple_allow_groups = {{ sssd_allow_groups | join(', ') }}
+{% endif %}
 ldap_sasl_authid = {{ sssd_sasl_authid }}

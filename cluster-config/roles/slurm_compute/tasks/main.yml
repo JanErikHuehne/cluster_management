@@ -136,3 +136,41 @@
     state: started
     enabled: true
   loop: "{{ slurm_services }}"
+
+
+- name: Ensure /nas exists as mount root
+  ansible.builtin.file:
+    path: /nas
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy mount-nas wrapper script
+  ansible.builtin.copy:
+    src: mount-nas
+    dest: /usr/local/bin/mount-nas
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy umount-nas wrapper script
+  ansible.builtin.copy:
+    src: umount-nas
+    dest: /usr/local/bin/umount-nas
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Allow all users passwordless sudo for mount-nas/umount-nas only
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/nas_mount
+    content: |
+      ALL ALL=(root) NOPASSWD: /usr/local/bin/mount-nas, /usr/local/bin/umount-nas
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+
+    

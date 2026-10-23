@@ -1,6 +1,12 @@
 - name: Install AD integration packages
   ansible.builtin.apt:
     name:
+      - realmd
+      - sssd
+      - sssd-tools
+      - libnss-sss
+      - libpam-sss
+      - adcli
       - sssd-ad
       - sssd-tools
       - realmd
@@ -31,12 +37,12 @@
 - name: Join AD domain
   ansible.builtin.command:
     cmd: >
-      realm join --user={{ ad_join_user }}
+      realm join --install=/ --user={{ ad_join_user }}
       --computer-name={{ sssd_sasl_authid | regex_replace('\$$', '') }}
       {{ sssd_ad_domain }}
     stdin: "{{ ad_join_password }}"
   when: sssd_ad_domain not in realm_status.stdout
-  no_log: True
+  no_log: "{{ not (debug_ad_join | default(false)) }}"
 
 - name: Wait for sssd to be responsive after join
   command: getent passwd root

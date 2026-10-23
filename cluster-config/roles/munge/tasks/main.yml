@@ -30,7 +30,7 @@
     state: directory 
     owner: "{{ munge_user }}"
     group: "{{ munge_group }}"
-    mode: "700"
+    mode: "0700"
 
   loop: 
   - /etc/munge 
@@ -39,7 +39,7 @@
 
 - name: Deploy shared munge key 
   ansible.builtin.copy:
-    src: files/munge.key 
+    src: munge.key 
     dest: "{{ munge_key_path }}"
     owner: "{{ munge_user }}"
     group: "{{ munge_group }}"
