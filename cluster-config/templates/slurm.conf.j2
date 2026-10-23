@@ -19,6 +19,8 @@ SelectTypeParameters=CR_CPU_Memory
 SchedulerType=sched/backfill
 ReturnToService=2
 SlurmdDebug=info
+GresTypes=gpu
+EnforcePartLimits=ALL
 
 MaxArraySize=50000
 MaxJobCount=100000
@@ -28,10 +30,16 @@ TaskProlog=/etc/slurm/task_prolog.sh
 AccountingStorageType=accounting_storage/slurmdbd
 AccountingStorageHost={{ slurm_controller_host }}
 AccountingStoragePort=6819
-
+AccountingStorageTRES=gres/gpu
+AccountingStorageEnforce=associations,limits,qos
 
 {% for host in groups['slurm_compute'] %}
-NodeName={{ host }} CPUs={{ hostvars[host].slurm_cpus }} Boards=1 SocketsPerBoard={{ hostvars[host].slurm_sockets }} CoresPerSocket={{ hostvars[host].slurm_cores }} ThreadsPerCore={{ hostvars[host].slurm_threads }} RealMemory={{ hostvars[host].slurm_real_memory }}{% if hostvars[host].slurm_core_spec_count is defined %} CoreSpecCount={{ hostvars[host].slurm_core_spec_count }}{% endif %}{% if hostvars[host].slurm_mem_spec_limit is defined %} MemSpecLimit={{ hostvars[host].slurm_mem_spec_limit }}{% endif %} State=UNKNOWN
+NodeName={{ host }} CPUs={{ hostvars[host].slurm_cpus }} Boards=1 SocketsPerBoard={{ hostvars[host].slurm_sockets }} CoresPerSocket={{ hostvars[host].slurm_cores }} ThreadsPerCore={{ hostvars[host].slurm_threads }} RealMemory={{ hostvars[host].slurm_real_memory }}{% if hostvars[host].slurm_core_spec_count is defined %} CoreSpecCount={{ hostvars[host].slurm_core_spec_count }}{% endif %}{% if hostvars[host].slurm_mem_spec_limit is defined %} MemSpecLimit={{ hostvars[host].slurm_mem_spec_limit }}{% endif %}{% if hostvars[host].slurm_gpu_count is defined %} Gres=gpu:{{ hostvars[host].slurm_gpu_type }}:{{ hostvars[host].slurm_gpu_count }}{% endif %}{% if hostvars[host].slurm_weight is defined %} Weight={{ hostvars[host].slurm_weight }}{% endif %} State=UNKNOWN
 {% endfor %}
 
-PartitionName=compute Nodes=ALL Default=YES MaxTime=INFINITE State=UP
+{% for p in slurm_partitions %}
+{% set nodes = groups[p.group] | default([]) %}
+{% if nodes %}
+PartitionName={{ p.name }} Nodes={{ nodes | join(',') }}{% if p.default | default(false) %} Default=YES{% endif %}{% for key, value in (p.options | default({})).items() %} {{ key }}={{ value }}{% endfor %} State={{ p.state | default('UP') }}
+{% endif %}
+{% endfor %}
