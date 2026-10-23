@@ -4,6 +4,7 @@
   gather_facts: true
   pre_tasks:
     - name: Update /etc/hosts with cluster nodes
+      tags: always
       ansible.builtin.blockinfile:
         path: /etc/hosts
         marker: "# {mark} ANSIBLE MANAGED CLUSTER HOSTS"
@@ -11,6 +12,7 @@
           {% for host in (groups['slurm_controller'] + groups['slurm_compute'] + groups['slurm_login']) | unique %}
           {{ hostvars[host].ansible_host | default(hostvars[host].ansible_default_ipv4.address) }} {{ host }}
           {% endfor %}
+          {{ beegfs_mgmtd_ip }} {{ beegfs_mgmtd_host }}
         state: present
   roles:
     - munge
@@ -20,8 +22,14 @@
       when: inventory_hostname in groups['slurm_controller']
     - role: slurm_compute
       when: inventory_hostname in groups['slurm_compute']
+    - role: slurm_gpu
+      when: inventory_hostname in groups['slurm_gpu'] | default([])
+      tags: gpu
     - role: slurm_login
       when: inventory_hostname in groups['slurm_login']
+    - role: beegfs_client
+      when: inventory_hostname in groups['beegfs_client']
+      tags: beegfs
  
 - name: Configure AD authentication
   hosts: ldap_client

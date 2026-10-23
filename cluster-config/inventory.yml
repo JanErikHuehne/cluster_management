@@ -6,21 +6,53 @@ all:
           ansible_host: 10.157.154.7
         tuwzc1n-habenula:
            ansible_host: 10.157.154.8
+        tuwzc1n-thalamus:
+           ansible_host: 10.157.154.11
+        tuwzc1n-amygdala:
+          ansible_host: 10.157.154.9
+        tuwzc1n-cortex:
+          ansible_host: 10.157.154.1 
+        tuwzc1n-pfc:
+          ansible_host: 10.157.154.13
+        tuwzc1n-cochlea:
+          ansible_host: 10.157.154.4
+        #tuwzc1n-retina:
+        #  ansible_host: 172.25.3.244
     slurm_compute:
       hosts: 
         tuwzc1n-insula:
-          ansible_host: 10.157.154.7
         tuwzc1n-habenula:
-          ansible_host: 10.157.154.8
+        tuwzc1n-thalamus:
+        tuwzc1n-cortex:
+        tuwzc1n-pfc:
+        tuwzc1n-cochlea:
     slurm_controller:
       hosts:
         tuwzc1n-habenula:
-          ansible_host: 10.157.154.8
     slurm_login:
       hosts:
-        tuwzc1n-hippocampus:
-          ansible_host: 10.157.182.10
+        tuwzc1n-amygdala:
+    slurm_cpu_big:            # large CPU nodes -> partition cpu-big
+      hosts:
+        tuwzc1n-cochlea:
+        tuwzc1n-insula:
+        tuwzc1n-cortex:
+        tuwzc1n-pfc:
+    slurm_gpu:
+      hosts:
+        tuwzc1n-thalamus:
+    beegfs_client:
+      hosts:
+        tuwzc1n-cochlea:
+        tuwzc1n-amygdala: 
+        tuwzc1n-thalamus:
+        tuwzc1n-habenula:
+        tuwzc1n-insula:
+        tuwzc1n-cortex:
+        tuwzc1n-pfc:
+      
   vars:
     ansible_user: janhuehne
     ansible_become: true 
     ansible_python_interpreter: /usr/bin/python3 
+    ansible_remote_tmp: /tmp/.ansible-janhuehne
