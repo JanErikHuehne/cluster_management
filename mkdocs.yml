@@ -1,4 +1,4 @@
-site_name: Cluster Ansible Build
+site_name: CompNeuro Compute Cluster Build
 repo_url: https://github.com/JanErikHuehne/cluster_management
 theme:
   name: material
