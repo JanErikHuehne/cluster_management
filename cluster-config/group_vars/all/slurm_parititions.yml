@@ -1,0 +1,32 @@
+# One entry per Slurm partition. Nodes come from the inventory group in "group".
+# Memory values in MB. Partitions whose group is empty or missing are left out.
+slurm_partitions:
+  - name: cpu-parallel
+    group: slurm_compute
+    default: true
+    options:
+      MaxTime: "1-00:00:00"
+      DefaultTime: "00:30:00"
+      MaxNodes: 1
+      DefMemPerCPU: 1024
+      MaxMemPerNode: 5120
+      QOS: part-cpu-parallel 
+  - name: cpu-big
+    group: slurm_cpu_big
+    options:
+      MaxTime: "7-00:00:00"
+      DefaultTime: "02:00:00"
+      MaxNodes: 1
+      DefMemPerCPU: 4096
+      QOS: part-cpu-big
+  - name: gpu
+    group: slurm_gpu
+    options:
+      QOS: part-gpu
+      MaxTime: "7-00:00:00"
+      DefaultTime: "01:00:00"
+      MaxNodes: 1
+      DefCpuPerGPU: 16
+      DefMemPerGPU: 65536
+
+  
