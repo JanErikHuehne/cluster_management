@@ -7,3 +7,6 @@ slurm_gid: 64030
 slurm_spool_dir: /var/spool/slurmd
 slurm_log_dir: /var/log/slurm
 slurm_state_save_location: /var/spool/slurmctld
+
+sssd_access_provider: deny
+sssd_allow_groups: []
