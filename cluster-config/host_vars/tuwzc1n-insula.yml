@@ -7,7 +7,7 @@ sssd_sasl_authid: TUWZC1N-INSULA$
 
 slurm_weight: 10
 
-sssd_access_provider: simple
+sssd_access_provider: deny
 sssd_allow_groups:
   - tuwzc1ngv-0srvalusr
   - tuwzc1ngv-0srvosadm

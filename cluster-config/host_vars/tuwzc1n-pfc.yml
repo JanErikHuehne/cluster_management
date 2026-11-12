@@ -4,11 +4,14 @@ slurm_cores: 128
 slurm_threads: 2
 slurm_real_memory: 499968
 
+slurm_core_spec_count: 8
+slurm_mem_spec_limit: 32768
+
 sssd_sasl_authid: TUWZC1N-PFC$
 
 slurm_weight: 10
 
-sssd_access_provider: simple
+sssd_access_provider: deny
 sssd_allow_groups:
   - tuwzc1ngv-0srvalusr
   - tuwzc1ngv-0srvosadm

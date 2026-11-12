@@ -3,19 +3,19 @@ all:
     ldap_client:
       hosts:
         tuwzc1n-insula:
-          ansible_host: 10.157.154.7
+          ansible_host: 172.25.3.238
         tuwzc1n-habenula:
-           ansible_host: 10.157.154.8
+           ansible_host: 172.25.3.228
         tuwzc1n-thalamus:
-           ansible_host: 10.157.154.11
+           ansible_host: 172.25.3.341
         tuwzc1n-amygdala:
-          ansible_host: 10.157.154.9
+          ansible_host: 172.25.3.237
         tuwzc1n-cortex:
-          ansible_host: 10.157.154.1 
+          ansible_host: 172.25.3.235
         tuwzc1n-pfc:
-          ansible_host: 10.157.154.13
+          ansible_host: 172.25.3.234
         tuwzc1n-cochlea:
-          ansible_host: 10.157.154.4
+          ansible_host: 172.25.3.239
         #tuwzc1n-retina:
         #  ansible_host: 172.25.3.244
     slurm_compute:
