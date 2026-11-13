@@ -7,7 +7,7 @@ all:
         tuwzc1n-habenula:
            ansible_host: 172.25.3.228
         tuwzc1n-thalamus:
-           ansible_host: 172.25.3.341
+           ansible_host: 172.25.3.241
         tuwzc1n-amygdala:
           ansible_host: 172.25.3.237
         tuwzc1n-cortex:
