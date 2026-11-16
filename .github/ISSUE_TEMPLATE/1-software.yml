@@ -1,0 +1,28 @@
+name: Software install
+description: A package, library, module or container you need on the cluster
+title: "[Software] "
+labels: ["software"]
+assignees: ["YOUR-GITHUB-USERNAME"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Python and R packages can usually go in your own conda environment without an admin. See the FAQ before opening this.
+  - type: input
+    id: name
+    attributes:
+      label: Software and version
+      placeholder: e.g. GROMACS 2024.3 with CUDA
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link to the project or install instructions
+  - type: textarea
+    id: why
+    attributes:
+      label: What will you use it for?
+      description: Helps decide whether it should be installed for everyone or just for you
+    validations:
+      required: true

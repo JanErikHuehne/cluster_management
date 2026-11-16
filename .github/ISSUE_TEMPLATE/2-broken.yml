@@ -1,0 +1,37 @@
+name: Something is broken
+description: Jobs failing, node down, login problems, anything that worked before and does not now
+title: "[Broken] "
+labels: ["broken"]
+assignees: ["YOUR-GITHUB-USERNAME"]
+body:
+  - type: dropdown
+    id: impact
+    attributes:
+      label: How badly does this affect you?
+      options:
+        - I am completely blocked
+        - It slows me down
+        - Minor, but worth fixing
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Node, job ID or command
+      placeholder: e.g. job 48213 on gpu03
+  - type: textarea
+    id: error
+    attributes:
+      label: Error output
+      description: Paste the relevant lines from the log
+      render: shell
+  - type: input
+    id: since
+    attributes:
+      label: When did it start?
