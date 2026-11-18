@@ -16,8 +16,8 @@ all:
           ansible_host: 172.25.3.234
         tuwzc1n-cochlea:
           ansible_host: 172.25.3.239
-        #tuwzc1n-retina:
-        #  ansible_host: 172.25.3.244
+        tuwzc1n-retina:
+          ansible_host: 172.25.3.244
     slurm_compute:
       hosts: 
         tuwzc1n-insula:
@@ -50,6 +50,7 @@ all:
         tuwzc1n-insula:
         tuwzc1n-cortex:
         tuwzc1n-pfc:
+        tuzc1n-retina:
       
   vars:
     ansible_user: janhuehne
