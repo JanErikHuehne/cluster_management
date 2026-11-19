@@ -33,6 +33,8 @@ AccountingStoragePort=6819
 AccountingStorageTRES=gres/gpu
 AccountingStorageEnforce=associations,limits,qos
 
+JobAcctGatherType=jobacct_gather/cgroup
+JobAcctGatherFrequency=task=30
 {% for host in groups['slurm_compute'] %}
 NodeName={{ host }} CPUs={{ hostvars[host].slurm_cpus }} Boards=1 SocketsPerBoard={{ hostvars[host].slurm_sockets }} CoresPerSocket={{ hostvars[host].slurm_cores }} ThreadsPerCore={{ hostvars[host].slurm_threads }} RealMemory={{ hostvars[host].slurm_real_memory }}{% if hostvars[host].slurm_core_spec_count is defined %} CoreSpecCount={{ hostvars[host].slurm_core_spec_count }}{% endif %}{% if hostvars[host].slurm_mem_spec_limit is defined %} MemSpecLimit={{ hostvars[host].slurm_mem_spec_limit }}{% endif %}{% if hostvars[host].slurm_gpu_count is defined %} Gres=gpu:{{ hostvars[host].slurm_gpu_type }}:{{ hostvars[host].slurm_gpu_count }}{% endif %}{% if hostvars[host].slurm_weight is defined %} Weight={{ hostvars[host].slurm_weight }}{% endif %} State=UNKNOWN
 {% endfor %}
