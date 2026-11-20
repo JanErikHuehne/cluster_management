@@ -73,6 +73,9 @@
     chdir: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
     creates: "{{ slurm_install_prefix }}/bin/srun"
 
+- name: Install seff
+  ansible.builtin.include_tasks: "{{ playbook_dir }}/tasks/seff.yml"
+
 - name: Refresh linker cache after install
   ansible.builtin.command: ldconfig
 
