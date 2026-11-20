@@ -1,0 +1,14 @@
+# tasks/seff.yml
+- name: Install Perl headers for the Slurm Perl API
+  ansible.builtin.apt:
+    name: libperl-dev
+    state: present
+
+- name: Build and install Slurm Perl API and seff
+  ansible.builtin.shell:
+    cmd: >
+      make -j{{ ansible_processor_vcpus }} &&
+      make -C contribs/perlapi install &&
+      make -C contribs/seff install
+    chdir: "{{ slurm_build_dir }}/slurm-{{ slurm_version }}"
+    creates: "{{ slurm_install_prefix }}/bin/seff"
